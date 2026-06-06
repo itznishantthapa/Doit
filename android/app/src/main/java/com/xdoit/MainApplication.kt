@@ -1,4 +1,4 @@
-package com.xdoit
+package com.blackonedevs.doit
 
 import android.app.Application
 import android.content.res.Configuration

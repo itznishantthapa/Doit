@@ -1,4 +1,4 @@
-package com.xdoit
+package com.blackonedevs.doit
 
 import android.os.Build
 import android.os.Bundle

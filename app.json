@@ -2,6 +2,12 @@
   "expo": {
     "name": "xDoit",
     "slug": "xDoit",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "plugins": [
+      "@react-native-community/datetimepicker",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
+      "@react-native-google-signin/google-signin"
+    ]
   }
 }
