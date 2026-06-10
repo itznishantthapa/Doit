@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { PRIMARY_DARK, TEXT_DARK } from '../../constants/colors';
+import { PRIMARY, PRIMARY_LIGHT, TEXT_DARK } from '../../constants/colors';
 
 export const ScreenHeader = ({ title, onBack }) => {
   const navigation = useNavigation();
@@ -17,7 +17,7 @@ export const ScreenHeader = ({ title, onBack }) => {
         style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
         hitSlop={8}
       >
-        <Ionicons name="chevron-back" size={22} color={PRIMARY_DARK} />
+        <Ionicons name="chevron-back" size={22} color={PRIMARY_LIGHT} />
       </Pressable>
       <Text style={styles.title} numberOfLines={1}>
         {title}
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f3f6fd',
+    backgroundColor: PRIMARY,
     alignItems: 'center',
     justifyContent: 'center',
   },

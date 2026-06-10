@@ -7,13 +7,17 @@ import { queryClient } from "./src/services/queryClient";
 import Main from "./src/main/Main";
 import { useEffect } from "react";
 import SystemNavigationBar from "react-native-system-navigation-bar";
+import { KeyboardProvider } from "react-native-keyboard-controller";
+import * as SplashScreen from 'expo-splash-screen';
 
- 
+
+SplashScreen.preventAutoHideAsync();
 
 
 const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
 });
+
 
 
 export default function App() {
@@ -34,7 +38,11 @@ export default function App() {
         }}
       >
         <SafeAreaProvider>
-          <Main />
+          <KeyboardProvider>
+
+              <Main />
+
+          </KeyboardProvider>
         </SafeAreaProvider>
       </PersistQueryClientProvider>
     </GestureHandlerRootView>
