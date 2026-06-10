@@ -1,293 +1,501 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import * as yup from 'yup';
 import {
+  Image,
+  Keyboard,
+  Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
-  Pressable,
-  Image,
-  ActivityIndicator,
-  useWindowDimensions,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AntDesign } from '@expo/vector-icons';
-import Carousel from 'react-native-reanimated-carousel';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { HugeiconsIcon } from '@hugeicons/react-native';
+import { EyeIcon, ViewOffIcon } from '@hugeicons/core-free-icons';
 import { MyWrapper } from '../../../components/wrapper/MyWrapper';
-import { useAuth } from '../hook/useAuth';
+import { TEXT_DARK, TEXT_MUTED } from '../../../constants/colors';
+import CoolButton from '../../../components/button/CoolButton';
+import Animated, { FadeIn, FadeOut, FadeInDown, FadeOutUp } from 'react-native-reanimated';
+import { useKeyboardState } from 'react-native-keyboard-controller';
 
-
-
-const ONBOARDING_SLIDES = [
-  { key: '1', source: require('../../../assets/onboarding1.png') },
-  { key: '2', source: require('../../../assets/onboarding2.png') },
-  { key: '3', source: require('../../../assets/onboarding3.png') },
+const PEEK_GRADIENT = [
+  '#cdb4db',
+  '#F0F2F5',
+  '#F0F2F5',
 ];
-const GOOGLE_WEB_CLIENT_ID = "1083886600114-e7t0fg69luegnkq4dejrvp0lrc77gee0.apps.googleusercontent.com";
 
+const EMOJI_REGEX = /\p{Extended_Pictographic}/u;
 
+//username can containe numbers
+const usernameSchema = yup
+  .string()
+  .trim()
+  .required('Username is required')
+  .matches(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers and underscores');
 
-const CAROUSEL_FLEX = 3;
-const CONTENT_FLEX = 1.5;
+const passwordSchema = yup
+  .string()
+  .required('Password is required')
+  .test('no-emoji', 'Password cannot contain emojis', (value) => !value || !EMOJI_REGEX.test(value));
+
+const signUpPasswordSchema = passwordSchema.min(6, 'Password must be at least 6 characters');
+
+const loginSchema = yup.object({
+  username: usernameSchema,
+  password: passwordSchema,
+});
+
+const signUpSchema = yup.object({
+  username: usernameSchema,
+  password: signUpPasswordSchema,
+  confirmPassword: yup
+    .string()
+    .required('Please confirm your password')
+    .oneOf([yup.ref('password')], 'Passwords do not match'),
+});
+
+const mapYupErrors = (err) => {
+  const fieldErrors = {};
+  err.inner.forEach(({ path, message }) => {
+    if (path) fieldErrors[path] = message;
+  });
+  return fieldErrors;
+};
 
 const Authentication = () => {
-  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const carouselWidth = windowWidth;
-  const carouselHeight = ((windowHeight) * CAROUSEL_FLEX) / (CAROUSEL_FLEX + CONTENT_FLEX);
+  const { isVisible } = useKeyboardState();
 
-  const { googleLogin } = useAuth();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [form, setForm] = useState({
+    username: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [visibility, setVisibility] = useState({
+    password: false,
+    confirmPassword: false,
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [loader, setLoader] = useState(false);
 
-  const [isGoogleLoggingIn, setIsGoogleLoggingIn] = useState(false);
-  const [isAppleLoggingIn, setIsAppleLoggingIn] = useState(false);
+  const getValidationSchema = () => (isSignUp ? signUpSchema : loginSchema);
 
+  const buildFormValues = (snapshot) => ({
+    username: snapshot.username.trim(),
+    password: snapshot.password,
+    confirmPassword: snapshot.confirmPassword,
+  });
 
-  // Initialize Google Sign-In
-  useEffect(() => {
-    GoogleSignin.configure({
-      scopes: ['email'],
-      webClientId: GOOGLE_WEB_CLIENT_ID,
-    });
-  }, []);
-
-  // Authentication Functions
-  const handleGoogleSignIn = async () => {
-
+  const validateField = async (field, snapshot) => {
     try {
-      setIsGoogleLoggingIn(true);
-      await GoogleSignin.hasPlayServices();
-      
-      await GoogleSignin.signOut(); // Clear existing sessions
-
-      const userInfo = await GoogleSignin.signIn();
-
-      if (!userInfo?.data?.idToken) {
-        return;
-      }
-
-      const payload = { id_token: userInfo.data.idToken };
-      console.log('payload', payload);
-
-      //api call to sign in with google...
-      googleLogin(payload);
-      
-
+      const schema = getValidationSchema();
+      await schema.validateAt(field, buildFormValues(snapshot));
+      setErrors((prev) => ({ ...prev, [field]: '' }));
     } catch (error) {
-      if (__DEV__) {
-        console.error('Google Sign-In Error:', error);
+      if (error instanceof yup.ValidationError) {
+        setErrors((prev) => ({ ...prev, [field]: error.message }));
       }
-    } finally {
-      setIsGoogleLoggingIn(false);
-    } 
+    }
   };
 
-  const handleAppleSignIn = async () => {
-    await GoogleSignin.signOut();
-    console.log('Apple Sign-In');
-  }
+  const updateForm = (field) => (value) => {
+    setForm((prev) => {
+      const next = { ...prev, [field]: value };
+      validateField(field, next);
+      if (field === 'password' && isSignUp && next.confirmPassword) {
+        validateField('confirmPassword', next);
+      }
+      return next;
+    });
+  };
 
+  const toggleVisibility = (field) => {
+    setVisibility((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
 
+  const resetForm = () => {
+    setForm({
+      username: '',
+      password: '',
+      confirmPassword: '',
+    });
+    setVisibility({
+      password: false,
+      confirmPassword: false,
+    });
+    setErrors({});
+  };
+
+  const toggleMode = () => {
+    resetForm();
+    setIsSignUp(!isSignUp);
+  };
+
+  const handleLogin = async () => {
+   
+    const payload = {
+      username: form.username.trim(),
+      password: form.password,
+    };
+
+    try {
+      setErrors({});
+      await loginSchema.validate(payload, { abortEarly: false });
+      setIsSubmitting(true);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+       Keyboard.dismiss();
+      console.log('Login', payload);
+    } catch (err) {
+      if (err instanceof yup.ValidationError) {
+        setErrors(mapYupErrors(err));
+      }
+    } finally {
+      setIsSubmitting(false);
+
+    }
+  };
+
+  const handleCreate = async () => {
+
+    const payload = {
+      username: form.username.trim(),
+      password: form.password,
+      confirmPassword: form.confirmPassword,
+    };
+
+    try {
+      setErrors({});
+      await signUpSchema.validate(payload, { abortEarly: false });
+      setIsSubmitting(true);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      Keyboard.dismiss();
+      console.log('SignUp', payload);
+    } catch (err) {
+      if (err instanceof yup.ValidationError) {
+        setErrors(mapYupErrors(err));
+      }
+    } finally {
+      setIsSubmitting(false);
+
+    }
+  };
+
+  const handleSubmit = isSignUp ? handleCreate : handleLogin;
+
+  const canSubmit = useMemo(() => {
+    try {
+      if (isSignUp) {
+        signUpSchema.validateSync(
+          {
+            username: form.username.trim(),
+            password: form.password,
+            confirmPassword: form.confirmPassword,
+          },
+          { abortEarly: true },
+        );
+      } else {
+        loginSchema.validateSync(
+          {
+            username: form.username.trim(),
+            password: form.password,
+          },
+          { abortEarly: true },
+        );
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }, [form, isSignUp]);
 
   return (
-    <MyWrapper enableBottomInset={false} style={styles.screen} statusBarStyle="dark-content">
+    <MyWrapper
+      enableTopInset={false}
+      enableBottomInset={false}
+      style={styles.screen}
+      statusBarStyle="dark-content"
+    >
+      <LinearGradient
+        colors={PEEK_GRADIENT}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
 
-      <View style={styles.layout}>
-        {/* Carousel fills the top portion */}
-        <View style={styles.carouselArea}>
-          <Carousel
-            loop
-            autoPlay
-            autoPlayInterval={5000}
-            pagingEnabled
-            width={carouselWidth}
-            height={carouselHeight}
-            data={ONBOARDING_SLIDES}
-            style={{ width: carouselWidth }}
-            renderItem={({ item }) => (
-              <View style={styles.slide}>
-                {item.source ? (
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior="padding"
+        automaticOffset
+      >
+        <View style={styles.layout}>
+          <View style={styles.peek}>
+            {!isVisible && (
+              <Animated.View
+              entering={FadeInDown.duration(300)}
+              exiting={FadeOutUp.duration(200)}
+              style={[styles.logoBox, { paddingTop: insets.top }]}
+              >
+                <View style={styles.logoImageWrap}>
                   <Image
-                    source={item.source}
-                    style={styles.slideImage}
-                    resizeMode="cover"
+                    source={require('../../../assets/applogo.png')}
+                    style={styles.logoImage}
+                    resizeMode="contain"
                   />
+                </View>
+              </Animated.View>
+            )}
+          </View>
+
+          <View style={[styles.card, { paddingBottom: insets.bottom + 20 }]}>
+            <View style={styles.titleBlock}>
+              <Text style={styles.title}>
+                {isSignUp ? 'Create Account' : 'Welcome Back'}
+              </Text>
+              <Text style={styles.subtitle}>
+                {isSignUp
+                  ? 'Start your education journey today.\nSign up to get going.'
+                  : 'Ready to continue your education journey?\nYour path is right here.'}
+              </Text>
+            </View>
+
+            <View style={styles.form}>
+              <View style={styles.inputGroup}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    errors.username && styles.inputError,
+                  ]}
+                  placeholder={isSignUp ? "Username (eg. anonymous_123)" : "Username"}
+                  placeholderTextColor={TEXT_MUTED}
+                  value={form.username}
+                  onChangeText={updateForm('username')}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  returnKeyType="next"
+                />
+                {errors.username ? (
+                  <Text style={styles.errorText}>{errors.username}</Text>
                 ) : null}
               </View>
-            )}
-          />
-        </View>
 
-        {/* Bottom content panel */}
-        <View style={styles.contentPanel}>
-          <View style={[styles.contentInner, { paddingBottom: insets.bottom+10 }]}>
-
-            <View style={styles.welcomeBlock}>
-              <Text style={styles.welcomeTitle}>You're Welcome</Text>
-              <Text style={styles.welcomeSubtitle}>
-                Let's get you signed in.
-              </Text>
-            </View>
-
-            <View style={styles.buttonsContainer}>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.primaryButton,
-                  pressed && styles.buttonPressed,
-                ]}
-                onPress={handleGoogleSignIn}
-              >
-                <View style={styles.buttonContent}>
-                  {
-                    isGoogleLoggingIn ? (<ActivityIndicator size="small" color="#ffffff" />):(
-                      <AntDesign name="google" size={16} color="#ffffff" />
-                    )
-                  }
-                  <Text style={styles.primaryButtonText}>Continue with Google</Text>
+              <View style={styles.inputGroup}>
+                <View style={styles.passwordWrap}>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      styles.passwordInput,
+                      errors.password && styles.inputError,
+                    ]}
+                    placeholder={isSignUp ? 'Create Password' : 'Password'}
+                    placeholderTextColor={TEXT_MUTED}
+                    value={form.password}
+                    onChangeText={updateForm('password')}
+                    secureTextEntry={!visibility.password}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    returnKeyType={isSignUp ? 'next' : 'done'}
+                    onSubmitEditing={isSignUp ? undefined : handleLogin}
+                  />
+                  <Pressable
+                    style={styles.eyeButton}
+                    onPress={() => toggleVisibility('password')}
+                    hitSlop={8}
+                  >
+                    <HugeiconsIcon
+                      icon={visibility.password ? EyeIcon : ViewOffIcon}
+                      size={20}
+                      color={TEXT_MUTED}
+                      strokeWidth={1.5}
+                    />
+                  </Pressable>
                 </View>
-              </Pressable>
+                {errors.password ? (
+                  <Text style={styles.errorText}>{errors.password}</Text>
+                ) : null}
+              </View>
 
-              <Pressable
-                style={({ pressed }) => [
-                  styles.secondaryButton,
-                  pressed && styles.buttonPressed,
-                ]}
-                onPress={handleAppleSignIn}
-              >
-                <View style={styles.buttonContent}>
-                  {
-                    isAppleLoggingIn ? (<ActivityIndicator size="small" color="#000000" />):(
-                      <AntDesign name="apple1" size={18} color="#000000" />
-                    )
-                  }
-                  <Text style={styles.secondaryButtonText}>Continue with Apple</Text>
+              {isSignUp ? (
+                <View style={styles.inputGroup}>
+                  <View style={styles.passwordWrap}>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        styles.passwordInput,
+                        errors.confirmPassword && styles.inputError,
+                      ]}
+                      placeholder="Confirm Password"
+                      placeholderTextColor={TEXT_MUTED}
+                      value={form.confirmPassword}
+                      onChangeText={updateForm('confirmPassword')}
+                      secureTextEntry={!visibility.confirmPassword}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      returnKeyType="done"
+                      onSubmitEditing={handleCreate}
+                    />
+                    <Pressable
+                      style={styles.eyeButton}
+                      onPress={() => toggleVisibility('confirmPassword')}
+                      hitSlop={8}
+                    >
+                      <HugeiconsIcon
+                        icon={visibility.confirmPassword ? EyeIcon : ViewOffIcon}
+                        size={20}
+                        color={TEXT_MUTED}
+                        strokeWidth={1.5}
+                      />
+                    </Pressable>
+                  </View>
+                  {errors.confirmPassword ? (
+                    <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+                  ) : null}
                 </View>
-              </Pressable>
+              ) : null}
             </View>
 
-            <View style={styles.termsContainer}>
-              <Text style={styles.termsText}>
-                By continuing, you agree to our{' '}
-                <Text style={styles.termsLink}>Terms of Service</Text>
-                {' '}and{' '}
-                <Text style={styles.termsLink}>Privacy Policy</Text>
+            <Pressable style={styles.switchRow} onPress={toggleMode}>
+              <Text style={styles.switchText}>
+                {isSignUp ? "Already have an account? " : "Don't have an account? "}
+                <Text style={styles.switchLink}>
+                  {isSignUp ? 'Log In' : 'Sign Up'}
+                </Text>
               </Text>
-            </View>
+            </Pressable>
 
+            <CoolButton
+              onPress={handleSubmit}
+              disabled={!canSubmit || isSubmitting}
+              buttonTitle={isSignUp ? 'Sign Up' : 'Log In'}
+              loader={isSubmitting}
+            />
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </MyWrapper>
   );
 };
 
 const styles = StyleSheet.create({
   screen: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'transparent',
+  },
+  keyboardView: {
+    flex: 1,
   },
   layout: {
     flex: 1,
   },
 
-  // Carousel takes up top ~60% of screen
-  carouselArea: {
-    flex: 3,
-    backgroundColor: 'transparent',
-    position: 'relative',
-  },
-  slide: {
+  peek: {
     flex: 1,
+    minHeight: 120,
   },
-  slideImage: {
-    width: '100%',
-    height: '100%',
+  logoBox: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-
-  // White content panel slides up over carousel
-  contentPanel: {
-    flex: 1.5,
-    backgroundColor: '#729ef1',
-    borderTopLeftRadius: 58,
-    // borderTopRightRadius: 48,
-    marginTop: -24,
+  logoImageWrap: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    alignItems: 'center',
+    justifyContent: 'center',
     overflow: 'hidden',
   },
-  contentInner: {
-    flex: 1,
-    paddingHorizontal: 28,
-    paddingTop: 28,
-    justifyContent: 'space-between',
+  logoImage: {
+    width: 60,
+    height: 60,
   },
 
-  welcomeBlock: {
+  card: {
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 36,
+    borderTopRightRadius: 36,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
+    paddingTop: 28,
+    paddingHorizontal: 24,
+  },
+
+  titleBlock: {
     alignItems: 'center',
+    marginBottom: 24,
+  },
+  title: {
+    fontFamily: 'Jakarta-Bold',
+    fontSize: 22,
+    color: TEXT_DARK,
+    letterSpacing: -0.3,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontFamily: 'Jakarta-Regular',
+    fontSize: 14,
+    color: TEXT_MUTED,
+    lineHeight: 21,
+    textAlign: 'center',
+  },
+
+  form: {
+    gap: 12,
+    marginBottom: 16,
+  },
+  inputGroup: {
     gap: 6,
   },
-  welcomeTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#ffffff',
-    textAlign: 'center',
-    letterSpacing: -0.3,
+  input: {
+    height: 50,
+    borderWidth: 1.5,
+    borderColor: TEXT_MUTED,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    fontFamily: 'Jakarta-Regular',
+    fontSize: 15,
+    color: TEXT_DARK,
+    backgroundColor: 'transparent',
   },
-  welcomeSubtitle: {
+  inputError: {
+    borderColor: '#FF4444',
+  },
+  passwordWrap: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  passwordInput: {
+    paddingRight: 48,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 16,
+    height: 50,
+    justifyContent: 'center',
+  },
+  errorText: {
+    fontFamily: 'Jakarta-Regular',
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.85)',
-    textAlign: 'center',
-    lineHeight: 18,
+    fontWeight: '500',
+    color: '#FF4444',
+    marginTop: 4,
   },
 
-  buttonsContainer: {
-    gap: 12,
-    width: '100%',
+  switchRow: {
+    marginBottom: 16,
   },
-  primaryButton: {
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: '#dddddd',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  secondaryButton: {
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  primaryButtonText: {
+  switchText: {
+    fontFamily: 'Jakarta-Regular',
     fontSize: 14,
-    fontWeight: '600',
-    color: '#ffffff',
-    letterSpacing: 0.1,
+    color: TEXT_MUTED,
   },
-  secondaryButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#000000',
-    letterSpacing: 0.1,
-  },
-  buttonPressed: {
-    opacity: 0.7,
-  },
-
-  termsContainer: {
-    paddingHorizontal: 12,
-  },
-  termsText: {
-    fontSize: 11,
-    textAlign: 'center',
-    lineHeight: 17,
-    color: 'rgba(255, 255, 255, 0.75)',
-  },
-  termsLink: {
-    fontWeight: '600',
-    color: '#ffffff',
+  switchLink: {
+    fontFamily: 'Jakarta-SemiBold',
+    color: TEXT_DARK,
   },
 });
 

@@ -23,7 +23,7 @@ const Main = () => {
 
     return (
         <NavigationContainer>
-            {true ? (<UserNavigator />) : (<AuthNavigator />)}
+            {false ? (<UserNavigator />) : (<AuthNavigator />)}
         </NavigationContainer>
 
     )
