@@ -1,15 +1,37 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { HugeiconsIcon } from '@hugeicons/react-native';
-import { InstagramIcon, WhatsappIcon } from '@hugeicons/core-free-icons';
+import {
+  FacebookIcon,
+  InstagramIcon,
+  TelegramIcon,
+  TiktokIcon,
+  ViberIcon,
+  WhatsappIcon,
+} from '@hugeicons/core-free-icons';
 import { SOFTGREY, TEXT_DARK, TEXT_MUTED } from '../../../constants/colors';
 
-const CONTACT_ICONS = {
+const MAX_SOCIALS = 4;
+
+const SOCIAL_ICONS = {
   whatsapp: WhatsappIcon,
   instagram: InstagramIcon,
+  telegram: TelegramIcon,
+  facebook: FacebookIcon,
+  viber: ViberIcon,
+  tiktok: TiktokIcon,
 };
 
-const ContactHelper = ({ contacts = [] }) => {
+const SOCIAL_LABELS = {
+  whatsapp: 'WhatsApp',
+  instagram: 'Instagram',
+  telegram: 'Telegram',
+  facebook: 'Facebook',
+  viber: 'Viber',
+  tiktok: 'TikTok',
+};
+
+const ContactHelper = ({ socials = [] }) => {
   const handlePress = useCallback((url) => {
     if (!url) return;
     Linking.openURL(url).catch((err) => {
@@ -17,27 +39,46 @@ const ContactHelper = ({ contacts = [] }) => {
     });
   }, []);
 
+  const visibleSocials = useMemo(
+    () =>
+      socials
+        .filter((social) => {
+          const name = social.social_name?.toLowerCase();
+          return name && SOCIAL_ICONS[name] && social.social_url;
+        })
+        .slice(0, MAX_SOCIALS),
+    [socials],
+  );
+
+  if (!visibleSocials.length) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>Contact with helper</Text>
       <View style={styles.row}>
-        {contacts.map((contact) => (
-          <Pressable
-            key={contact.id}
-            style={({ pressed }) => [styles.contactItem, pressed && styles.contactPressed]}
-            onPress={() => handlePress(contact.url)}
-          >
-            <View style={styles.iconCircle}>
-              <HugeiconsIcon
-                icon={CONTACT_ICONS[contact.id]}
-                size={28}
-                color={TEXT_DARK}
-                strokeWidth={1.5}
-              />
-            </View>
-            <Text style={styles.contactLabel}>{contact.label}</Text>
-          </Pressable>
-        ))}
+        {visibleSocials.map((social) => {
+          const name = social.social_name.toLowerCase();
+
+          return (
+            <Pressable
+              key={social.id}
+              style={({ pressed }) => [styles.contactItem, pressed && styles.contactPressed]}
+              onPress={() => handlePress(social.social_url)}
+            >
+              <View style={styles.iconCircle}>
+                <HugeiconsIcon
+                  icon={SOCIAL_ICONS[name]}
+                  size={28}
+                  color={TEXT_DARK}
+                  strokeWidth={1.5}
+                />
+              </View>
+              <Text style={styles.contactLabel}>{SOCIAL_LABELS[name]}</Text>
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );

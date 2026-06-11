@@ -8,20 +8,28 @@ import HomeBanner from '../components/HomeBanner';
 import ActionCard from '../components/ActionCard';
 import ContactHelper from '../components/ContactHelper';
 import {
-  HELPER_CONTACTS,
   MOCK_USER,
 } from '../data/mockHomeData';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { useBanners } from '../../../hooks/query/query/useBanner';
+import { useSocials } from '../../../hooks/query/query/useSocial';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = () => {
   const { user } = useAuthStore();
-  const { data: banners = [], isLoading } = useBanners();
+  const { data: banners = [], isBannersLoading } = useBanners();
+  const { data: socials = [] } = useSocials();
+
 
   useEffect(() => {
-    console.log('user', user);
-    console.log('banners', banners);
-  }, [user, banners]);
+    const checkAccessToken = async () => {
+      const refreshToken = await AsyncStorage.getItem('@refresh_token');
+    console.log('refreshToken', refreshToken);
+ 
+    };
+    checkAccessToken();
+  }, []);
+
   
   return (
     <MyWrapper style={styles.screen}>
@@ -45,12 +53,12 @@ const Home = () => {
           </Pressable>
         </View>
 
-        <HomeBanner data={banners} isLoading={isLoading} />
+        <HomeBanner data={banners} isLoading={isBannersLoading} />
 
         <ActionCard />
 
         <View style={styles.section}>
-          <ContactHelper contacts={HELPER_CONTACTS} />
+          <ContactHelper socials={socials} />
         </View>
       </ScrollView>
     </MyWrapper>

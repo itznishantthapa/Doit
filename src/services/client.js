@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+const {useAuthStore} = require('../features/auth/store/useAuthStore');
 
 export const API_CLIENT = axios.create({
   baseURL: 'http://192.168.1.139:8000', // Update with your backend URL

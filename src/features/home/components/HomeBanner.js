@@ -3,7 +3,7 @@ import { StyleSheet, View, Image, Pressable, Dimensions, Linking } from 'react-n
 import Carousel, { Pagination } from 'react-native-reanimated-carousel';
 import { useSharedValue, useDerivedValue } from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
-import { GHOSTWHITE, SOFTGREY } from '../../../constants/colors';
+import { GHOSTWHITE } from '../../../constants/colors';
 
 const BANNER_HEIGHT = 160;
 

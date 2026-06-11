@@ -8,6 +8,7 @@ import {
   ListIndentIncreaseIcon,
 } from '@hugeicons/core-free-icons';
 import { GHOSTWHITE, LAVENDER, MINT, PEACH, TEXT_DARK, TEXT_MUTED } from '../../../constants/colors';
+import { useNavigation } from '@react-navigation/native';
 
 const ACTION_CARDS = [
   {
@@ -16,9 +17,7 @@ const ACTION_CARDS = [
     subtitle: 'Provide us your assignment',
     icon: AssignmentsIcon,
     backgroundColor: LAVENDER,
-    onPress: () => {
-      if (__DEV__) console.log('Assignment Help');
-    },
+    screen: 'Upload',
   },
   {
     id: 'pending',
@@ -26,9 +25,6 @@ const ACTION_CARDS = [
     subtitle: 'Track your given assignments',
     icon: Clock01Icon,
     backgroundColor: MINT,
-    onPress: () => {
-      if (__DEV__) console.log('Pending');
-    },
   },
   {
     id: 'completed',
@@ -36,9 +32,6 @@ const ACTION_CARDS = [
     subtitle: 'View and download your assignments',
     icon: TaskDone01Icon,
     backgroundColor: PEACH,
-    onPress: () => {
-      if (__DEV__) console.log('Completed');
-    },
   },
   {
     id: 'all',
@@ -46,9 +39,6 @@ const ACTION_CARDS = [
     subtitle: 'View all of your given assignments',
     icon: ListIndentIncreaseIcon,
     backgroundColor: GHOSTWHITE,
-    onPress: () => {
-      if (__DEV__) console.log('All');
-    },
   },
 ];
 
@@ -74,26 +64,39 @@ const ActionCardItem = ({ title, subtitle, icon, backgroundColor, onPress }) => 
   </Pressable>
 );
 
-const ActionCard = () => (
-  <View style={styles.section}>
-    <Text style={styles.sectionTitle}>Assignments  &  Actions</Text>
-    <View style={styles.cardGrid}>
-      {CARD_ROWS.map((row, rowIndex) => (
-        <React.Fragment key={row.map((card) => card.id).join('-')}>
-          {rowIndex > 0 ? <View style={styles.rowGap} /> : null}
-          <View style={styles.cardRow}>
-            {row.map((card, cardIndex) => (
-              <React.Fragment key={card.id}>
-                {cardIndex > 0 ? <View style={styles.cardGap} /> : null}
-                <ActionCardItem {...card} />
-              </React.Fragment>
-            ))}
-          </View>
-        </React.Fragment>
-      ))}
+const ActionCard = () => {
+  const navigation = useNavigation();
+
+  const handleCardPress = (card) => {
+    if (card.screen) {
+      navigation.navigate(card.screen);
+      return;
+    }
+
+    if (__DEV__) console.log(card.id);
+  };
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Assignments  &  Actions</Text>
+      <View style={styles.cardGrid}>
+        {CARD_ROWS.map((row, rowIndex) => (
+          <React.Fragment key={row.map((card) => card.id).join('-')}>
+            {rowIndex > 0 ? <View style={styles.rowGap} /> : null}
+            <View style={styles.cardRow}>
+              {row.map((card, cardIndex) => (
+                <React.Fragment key={card.id}>
+                  {cardIndex > 0 ? <View style={styles.cardGap} /> : null}
+                  <ActionCardItem {...card} onPress={() => handleCardPress(card)} />
+                </React.Fragment>
+              ))}
+            </View>
+          </React.Fragment>
+        ))}
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   section: {

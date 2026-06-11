@@ -12,6 +12,10 @@ export const WHITE = '#FFFFFF';
 export const TEXT_DARK = '#1a1a1a';
 export const TEXT_MUTED = '#8e8e8e';
 
+export const BORDER = '#E8EAED';
+export const AVAILABLE_TEXT = '#2F6B52';
+export const BOOKED_TEXT = '#B54708';
+
 
 
 //Button Colors
