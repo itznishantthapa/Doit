@@ -3,6 +3,7 @@ import {
   clearStoredAuthData,
   apiCreate,
   apiLogin,
+  apiRefreshToken as refreshAccessToken,
   getStoredAuthData,
 } from '../api/api';
 
@@ -53,6 +54,22 @@ export const useAuthStore = create((set, get) => ({
       refreshToken: auth.refreshToken,
     });
     return auth.user;
+  },
+
+
+  apiRefreshToken: async () => {
+    const refreshToken = get().refreshToken;
+
+    if (!refreshToken) {
+      await get().logout();
+      throw new Error('No refresh token');
+    }
+
+    const accessToken = await refreshAccessToken(refreshToken);
+
+    set({ accessToken });
+
+    return accessToken;
   },
 
   logout: async () => {

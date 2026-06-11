@@ -54,3 +54,15 @@ export const apiCreate = async (payload) => {
   return persistAuthData(tokens, user);
 };
 
+
+export const apiRefreshToken = async (refreshToken) => {
+  const response = await API_CLIENT.post(endpoints.refresh, {
+    refresh: refreshToken,
+  });
+
+  const accessToken = response.data.access;
+
+  await AsyncStorage.setItem('@access_token', accessToken);
+
+  return accessToken;
+};
