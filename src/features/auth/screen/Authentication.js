@@ -19,6 +19,9 @@ import { TEXT_DARK, TEXT_MUTED, WHITE } from '../../../constants/colors';
 import CoolButton from '../../../components/button/CoolButton';
 import Animated, { FadeIn, FadeOut, FadeInDown, FadeOutUp } from 'react-native-reanimated';
 import { useKeyboardState } from 'react-native-keyboard-controller';
+import { getDeviceData } from '../device/device';
+import { getApiErrorMessage } from '../api/api';
+import { useAuthStore } from '../store/useAuthStore';
 
 const PEEK_GRADIENT = [
   '#cdb4db',
@@ -64,9 +67,27 @@ const mapYupErrors = (err) => {
   return fieldErrors;
 };
 
+const INVALID_CREDENTIALS_MESSAGE = 'Invalid username or password';
+const USERNAME_TAKEN_MESSAGE = 'Username is already taken.';
+
+const mapLoginApiError = (message) => {
+  if (message === INVALID_CREDENTIALS_MESSAGE) {
+    return { username: true, password: message };
+  }
+  return { form: message };
+};
+
+const mapCreateApiError = (message) => {
+  if (message === USERNAME_TAKEN_MESSAGE) {
+    return { username: message };
+  }
+  return { form: message };
+};
+
 const Authentication = () => {
   const insets = useSafeAreaInsets();
   const { isVisible } = useKeyboardState();
+  const { login, create } = useAuthStore();
 
   const [isSignUp, setIsSignUp] = useState(false);
   const [form, setForm] = useState({
@@ -136,7 +157,6 @@ const Authentication = () => {
   };
 
   const handleLogin = async () => {
-   
     const payload = {
       username: form.username.trim(),
       password: form.password,
@@ -146,41 +166,44 @@ const Authentication = () => {
       setErrors({});
       await loginSchema.validate(payload, { abortEarly: false });
       setIsSubmitting(true);
-      await new Promise(resolve => setTimeout(resolve, 5000));
-       Keyboard.dismiss();
-      console.log('Login', payload);
+      await login(payload);
+      Keyboard.dismiss();
     } catch (err) {
       if (err instanceof yup.ValidationError) {
         setErrors(mapYupErrors(err));
+      } else {
+        setErrors(mapLoginApiError(getApiErrorMessage(err, 'Could not log in.')));
       }
     } finally {
       setIsSubmitting(false);
-
     }
   };
 
   const handleCreate = async () => {
+    const { deviceId, platform } = await getDeviceData();
 
     const payload = {
       username: form.username.trim(),
       password: form.password,
       confirmPassword: form.confirmPassword,
+      deviceId,
+      platform,
     };
 
     try {
       setErrors({});
       await signUpSchema.validate(payload, { abortEarly: false });
       setIsSubmitting(true);
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await create(payload);
       Keyboard.dismiss();
-      console.log('SignUp', payload);
     } catch (err) {
       if (err instanceof yup.ValidationError) {
         setErrors(mapYupErrors(err));
+      } else {
+        setErrors(mapCreateApiError(getApiErrorMessage(err, 'Could not create account.')));
       }
     } finally {
       setIsSubmitting(false);
-
     }
   };
 
@@ -277,7 +300,7 @@ const Authentication = () => {
                   autoCorrect={false}
                   returnKeyType="next"
                 />
-                {errors.username ? (
+                {typeof errors.username === 'string' && errors.username ? (
                   <Text style={styles.errorText}>{errors.username}</Text>
                 ) : null}
               </View>
@@ -365,6 +388,10 @@ const Authentication = () => {
                 </Text>
               </Text>
             </Pressable>
+
+            {errors.form ? (
+              <Text style={styles.errorText}>{errors.form}</Text>
+            ) : null}
 
             <CoolButton
               onPress={handleSubmit}

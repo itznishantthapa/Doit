@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import { Notification01Icon } from '@hugeicons/core-free-icons';
@@ -8,12 +8,21 @@ import HomeBanner from '../components/HomeBanner';
 import ActionCard from '../components/ActionCard';
 import ContactHelper from '../components/ContactHelper';
 import {
-  BANNER_DATA,
   HELPER_CONTACTS,
   MOCK_USER,
 } from '../data/mockHomeData';
+import { useAuthStore } from '../../auth/store/useAuthStore';
+import { useBanners } from '../../../hooks/query/query/useBanner';
 
 const Home = () => {
+  const { user } = useAuthStore();
+  const { data: banners = [], isLoading } = useBanners();
+
+  useEffect(() => {
+    console.log('user', user);
+    console.log('banners', banners);
+  }, [user, banners]);
+  
   return (
     <MyWrapper style={styles.screen}>
       <ScrollView
@@ -21,7 +30,7 @@ const Home = () => {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hi {MOCK_USER.name},</Text>
+          <Text style={styles.greeting}>Hi {user?.username},</Text>
           <Pressable
             style={({ pressed }) => [styles.notificationButton, pressed && styles.pressed]}
             hitSlop={8}
@@ -36,7 +45,7 @@ const Home = () => {
           </Pressable>
         </View>
 
-        <HomeBanner data={BANNER_DATA} />
+        <HomeBanner data={banners} isLoading={isLoading} />
 
         <ActionCard />
 
