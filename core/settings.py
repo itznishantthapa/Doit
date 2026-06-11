@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from datetime import timedelta
 import os
 from pathlib import Path
 import environ  # Import django-environ by Thapa
@@ -23,8 +24,8 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 
-# Read .env file by Thapa
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# Read .env file (overwrite=True so mounted .env wins over stale Docker env vars)
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'), overwrite=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -35,7 +36,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 
 # Application definition
@@ -48,6 +49,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
+
+    'banner',
+    'social',
+    'busydate',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +137,22 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'user.User'
+
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+        'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  
+        'REFRESH_TOKEN_LIFETIME': timedelta(days=10000),
+    }
+
+
+# The URL prefix used to serve media files over HTTP
+MEDIA_URL = '/media/'
+
+# The absolute filesystem path to the directory where uploaded files are saved
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
