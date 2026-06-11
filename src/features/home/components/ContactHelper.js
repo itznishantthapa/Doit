@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import { InstagramIcon, WhatsappIcon } from '@hugeicons/core-free-icons';
-import { TEXT_DARK, TEXT_MUTED } from '../../../constants/colors';
+import { SOFTGREY, TEXT_DARK, TEXT_MUTED } from '../../../constants/colors';
 
 const CONTACT_ICONS = {
   whatsapp: WhatsappIcon,
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#F5F6F8',
+    backgroundColor: SOFTGREY,
     alignItems: 'center',
     justifyContent: 'center',
   },

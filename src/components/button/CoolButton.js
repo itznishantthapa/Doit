@@ -1,9 +1,9 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import React from 'react'
-import { TEXT_DARK } from '../../constants/colors';
+import { BG_BUTTON, TEXT_DARK } from '../../constants/colors';
 import LoaderKitView from 'react-native-loader-kit';
 
-const BG_BUTTON = '#CDEBDD';
+
 
 const CoolButton = ({ onPress, disabled=false, buttonTitle, loader=false }) => {
 

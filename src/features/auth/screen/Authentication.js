@@ -15,7 +15,7 @@ import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import { EyeIcon, ViewOffIcon } from '@hugeicons/core-free-icons';
 import { MyWrapper } from '../../../components/wrapper/MyWrapper';
-import { TEXT_DARK, TEXT_MUTED } from '../../../constants/colors';
+import { TEXT_DARK, TEXT_MUTED, WHITE } from '../../../constants/colors';
 import CoolButton from '../../../components/button/CoolButton';
 import Animated, { FadeIn, FadeOut, FadeInDown, FadeOutUp } from 'react-native-reanimated';
 import { useKeyboardState } from 'react-native-keyboard-controller';
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: WHITE,
     borderTopLeftRadius: 36,
     borderTopRightRadius: 36,
     borderBottomLeftRadius: 36,

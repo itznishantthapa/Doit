@@ -7,7 +7,7 @@ import {
   TaskDone01Icon,
   ListIndentIncreaseIcon,
 } from '@hugeicons/core-free-icons';
-import { TEXT_DARK, TEXT_MUTED } from '../../../constants/colors';
+import { GHOSTWHITE, LAVENDER, MINT, PEACH, TEXT_DARK, TEXT_MUTED } from '../../../constants/colors';
 
 const ACTION_CARDS = [
   {
@@ -15,7 +15,7 @@ const ACTION_CARDS = [
     title: 'Assignment Help',
     subtitle: 'Provide us your assignment',
     icon: AssignmentsIcon,
-    backgroundColor: '#F3F0FA',
+    backgroundColor: LAVENDER,
     onPress: () => {
       if (__DEV__) console.log('Assignment Help');
     },
@@ -25,7 +25,7 @@ const ACTION_CARDS = [
     title: 'Pending',
     subtitle: 'Track your given assignments',
     icon: Clock01Icon,
-    backgroundColor: '#EAF6F0',
+    backgroundColor: MINT,
     onPress: () => {
       if (__DEV__) console.log('Pending');
     },
@@ -35,7 +35,7 @@ const ACTION_CARDS = [
     title: 'Completed',
     subtitle: 'View and download your assignments',
     icon: TaskDone01Icon,
-    backgroundColor: '#FFF3EB',
+    backgroundColor: PEACH,
     onPress: () => {
       if (__DEV__) console.log('Completed');
     },
@@ -45,7 +45,7 @@ const ACTION_CARDS = [
     title: 'All',
     subtitle: 'View all of your given assignments',
     icon: ListIndentIncreaseIcon,
-    backgroundColor: '#F0F2F5',
+    backgroundColor: GHOSTWHITE,
     onPress: () => {
       if (__DEV__) console.log('All');
     },

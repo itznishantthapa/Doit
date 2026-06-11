@@ -1,11 +1,18 @@
-export const PRIMARY = '#729ef1';
-export const PRIMARY_DARK = '#5a85e0';
-export const PRIMARY_LIGHT = '#f3f6fd';
+ 
+// Four Main Theme Colors
+export const LAVENDER = '#F3F0FA';
+export const MINT = '#EAF6F0';
+export const PEACH = '#FFF3EB';
+export const GHOSTWHITE = '#F0F2F5';
+
+
+// Other Colors
+export const SOFTGREY = '#F5F6F8';
+export const WHITE = '#FFFFFF';
 export const TEXT_DARK = '#1a1a1a';
 export const TEXT_MUTED = '#8e8e8e';
-export const BORDER = '#e8ecf4';
 
-export const AVAILABLE_BG = '#729ef1';
-export const AVAILABLE_TEXT = '#ffffff';
-export const BOOKED_BG = '#b99bda';
-export const BOOKED_TEXT = '#000000';
+
+
+//Button Colors
+export const BG_BUTTON = '#CDEBDD';
