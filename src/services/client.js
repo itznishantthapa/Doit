@@ -4,6 +4,25 @@ import { endpoints } from './endpoints';
 
 let refreshPromise = null;
 
+const isPublicAuthRequest = (url) =>
+  url?.includes(endpoints.login) ||
+  url?.includes(endpoints.create) ||
+  url?.includes(endpoints.refresh);
+
+const shouldLogoutOnRefreshFailure = (refreshError) => {
+  if (refreshError?.message === 'No refresh token') {
+    return true;
+  }
+
+  const status = refreshError?.response?.status;
+
+  if (status === 401 || refreshError?.response?.data?.refresh_expired) {
+    return true;
+  }
+
+  return false;
+};
+
 const getRefreshedAccessToken = () => {
   if (!refreshPromise) {
     refreshPromise = useAuthStore
@@ -30,6 +49,10 @@ export const API_CLIENT = axios.create({
 
 
 API_CLIENT.interceptors.request.use((config) => {
+  if (isPublicAuthRequest(config.url)) {
+    return config;
+  }
+
   const accessToken = useAuthStore.getState().accessToken;
 
   if (accessToken) {
@@ -68,7 +91,10 @@ API_CLIENT.interceptors.response.use(
 
         return API_CLIENT(originalRequest);
       } catch (refreshError) {
-        await useAuthStore.getState().logout();
+        if (shouldLogoutOnRefreshFailure(refreshError)) {
+          await useAuthStore.getState().logout();
+        }
+
         return Promise.reject(refreshError);
       }
     }

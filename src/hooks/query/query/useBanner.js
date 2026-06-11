@@ -2,7 +2,7 @@ import { API_CLIENT } from "../../../services/client";
 import { endpoints } from "../../../services/endpoints";
 import { useQuery } from "@tanstack/react-query";
 
-const TEN_MIN = 1000 * 60 * 10;
+const TEN_MIN = 1000 * 60 * 1;
 
 
 export const useBanners = () => {
