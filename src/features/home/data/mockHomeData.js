@@ -20,6 +20,12 @@ export const BANNER_DATA = [
   },
 ];
 
+export const MOCK_RECENT_ACTIVITY = {
+  title: 'Assignment Completed',
+  description: 'Your Mathematics assignment is ready to download.',
+};
+// export const MOCK_RECENT_ACTIVITY =  null;
+
 export const HELPER_CONTACTS = [
   {
     id: 'whatsapp',

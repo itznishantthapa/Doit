@@ -7,7 +7,9 @@ import { TEXT_DARK } from '../../../constants/colors';
 import HomeBanner from '../components/HomeBanner';
 import ActionCard from '../components/ActionCard';
 import ContactHelper from '../components/ContactHelper';
+import RecentActivity from '../components/RecentActivity';
 import {
+  MOCK_RECENT_ACTIVITY,
   MOCK_USER,
 } from '../data/mockHomeData';
 import { useAuthStore } from '../../auth/store/useAuthStore';
@@ -57,8 +59,17 @@ const Home = () => {
 
         <ActionCard />
 
-        <View style={styles.section}>
-          <ContactHelper socials={socials} />
+        <View style={styles.bottomContent}>
+          <RecentActivity
+            activity={MOCK_RECENT_ACTIVITY}
+            onPress={() => {
+              if (__DEV__) console.log('Recent activity pressed');
+            }}
+          />
+
+          <View style={styles.section}>
+            <ContactHelper socials={socials} />
+          </View>
         </View>
       </ScrollView>
     </MyWrapper>
@@ -70,7 +81,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   scrollContent: {
+    flexGrow: 1,
     paddingBottom: 32,
+  },
+  bottomContent: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    // marginTop: 8,
   },
   header: {
     flexDirection: 'row',
