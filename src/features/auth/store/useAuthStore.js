@@ -6,6 +6,7 @@ import {
   apiRefreshToken as refreshAccessToken,
   getStoredAuthData,
 } from '../api/api';
+import { Keyboard } from 'react-native';
 
 export const useAuthStore = create((set, get) => ({
   user: undefined, // undefined = loading, null = logged out, object = logged in
@@ -38,6 +39,8 @@ export const useAuthStore = create((set, get) => ({
 
   login: async (payload) => {
     const auth = await apiLogin(payload);
+    Keyboard.dismiss();
+    await new Promise(resolve => setTimeout(resolve, 2000));
     set({
       user: auth.user,
       accessToken: auth.accessToken,
@@ -48,6 +51,8 @@ export const useAuthStore = create((set, get) => ({
 
   create: async (payload) => {
     const auth = await apiCreate(payload);
+    Keyboard.dismiss();
+    await new Promise(resolve => setTimeout(resolve, 2000));
     set({
       user: auth.user,
       accessToken: auth.accessToken,

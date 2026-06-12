@@ -30,10 +30,7 @@ import Toast from 'react-native-simple-toast';
 import { MyWrapper } from '../../../components/wrapper/MyWrapper';
 import { ScreenHeader } from '../../../components/header/ScreenHeader';
 import CoolButton from '../../../components/button/CoolButton';
-import {
-  buildAvailabilityFromBusyDates,
-  getNearestAvailableDate,
-} from '../mocked/mocked';
+import { buildAvailabilityFromBusyDates, getNearestAvailableDate } from '../data/uiData';
 import {
   BOOKED_TEXT,
   BORDER,
@@ -47,6 +44,7 @@ import {
   WHITE,
 } from '../../../constants/colors';
 import { useBusyDates } from '../../../hooks/query/query/useBusyDate';
+import { useCreateAssignment } from '../../../hooks/query/mutation/useCreateAssignment';
 
 const ASSIGNMENT_TYPES = [
   {
@@ -328,6 +326,7 @@ const DeliveryDateCalendar = ({
 const Upload = () => {
   const insets = useSafeAreaInsets();
   const { data: busyDates = [] } = useBusyDates();
+  const { createAssignment, isSubmitting } = useCreateAssignment();
 
   const { bookedDates, availableDates } = useMemo(
     () => buildAvailabilityFromBusyDates(busyDates),
@@ -339,7 +338,6 @@ const Upload = () => {
   const [outlineFiles, setOutlineFiles] = useState([]);
   const [description, setDescription] = useState('');
   const [assessmentName, setAssessmentName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [deliveryDate, setDeliveryDate] = useState(null);
 
@@ -444,35 +442,21 @@ const Upload = () => {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) {
+  const handleSubmit = () => {
+    if (!validateForm() || !deliveryDate) {
+      if (!deliveryDate) Toast.show('Please select a delivery date.', Toast.SHORT);
       return;
     }
 
-    if (!deliveryDate) {
-      Toast.show('Please select a delivery date.', Toast.SHORT);
-      return;
-    }
-    setIsSubmitting(true);
-    const payload = {
-      assignment_type: assignmentType,
-      work_type: assignmentType === 'assessment' ? workType : null,
+    createAssignment({
       name: assessmentName.trim(),
-      description: description.trim(),
+      assignment_type: assignmentType,
+      ...(assignmentType === 'assessment' && { work_type: workType }),
       delivery_date: toDateString(deliveryDate),
-      files: outlineFiles.map(({ name, uri, type }) => ({
-        name,
-        uri,
-        type,
-      })),
-    };
-
-
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    console.log('Upload payload ready for backend:', payload);
-
-    setIsSubmitting(false);
-
+      description: description.trim(),
+      files: outlineFiles,
+    });
+ 
   };
 
   useFocusEffect(
@@ -577,7 +561,7 @@ const Upload = () => {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Delivery date</Text>
+          <Text style={styles.fieldLabel}>Delivery Date  (Please select your deadline)</Text>
           {deliveryDate ? (
             <DeliveryDateCalendar
               selectedDate={deliveryDate}
@@ -589,8 +573,8 @@ const Upload = () => {
         </View>
       </KeyboardAwareScrollView>
 
-      <KeyboardStickyView offset={{ closed: 0, opened: Platform.OS === 'android' ? 0 : 20 }}>
-        <View style={[styles.footer, { paddingBottom: insets.bottom || 16 }]}>
+      <KeyboardStickyView offset={{ closed: 0, opened: Platform.OS === 'android' ? 5 : 25 }}>
+        <View style={[styles.footer, { paddingBottom: insets.bottom}]}>
           <CoolButton
             buttonTitle="Submit Request"
             onPress={handleSubmit}

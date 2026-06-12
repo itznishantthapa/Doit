@@ -1,27 +1,52 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { HugeiconsIcon } from '@hugeicons/react-native';
-import { ArrowRight01Icon, TaskDone01Icon } from '@hugeicons/core-free-icons';
-import { GHOSTWHITE, SOFTGREY, TEXT_DARK, TEXT_MUTED } from '../../../constants/colors';
+import {
+  ArrowRight01Icon,
+  MoneyReceiveSquareIcon,
+  StickyNote02Icon
+} from '@hugeicons/core-free-icons';
+import { GHOSTWHITE, SOFTGREY, TEXT_DARK, TEXT_MUTED, WHITE } from '../../../constants/colors';
 
-const RecentActivity = ({ activity, onPress }) => (
+const PAYMENT_CARD_BG = '#EDF5FF';
+
+const isPaymentActivity = (title = '') => {
+  const lowerTitle = title.toLowerCase();
+  return lowerTitle.includes('payment') || lowerTitle.includes('pay');
+};
+
+const RecentActivity = ({ activity, onPress }) => {
+  const isPayment = activity ? isPaymentActivity(activity.title) : false;
+
+  return (
   <View style={styles.section}>
     <Text style={styles.sectionTitle}>Recent Alerts</Text>
     {activity ? (
       <Pressable
-        style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+        style={({ pressed }) => [
+          styles.card,
+          isPayment && styles.paymentCard,
+          pressed && styles.cardPressed,
+        ]}
         onPress={onPress}
       >
-        <View style={styles.iconCircle}>
+        <View style={[styles.iconCircle, isPayment && styles.paymentIconCircle]}>
           <HugeiconsIcon
-            icon={activity.icon ?? TaskDone01Icon}
+            icon={isPayment ? MoneyReceiveSquareIcon : StickyNote02Icon}
             size={24}
             color={TEXT_DARK}
             strokeWidth={1.5}
           />
         </View>
         <View style={styles.textContent}>
-          <Text style={styles.title}>{activity.title}</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.title} numberOfLines={1}>
+              {activity.title}
+            </Text>
+            {activity.created_at ? (
+              <Text style={styles.date}>{activity.created_at}</Text>
+            ) : null}
+          </View>
           <Text style={styles.description} numberOfLines={2}>
             {activity.description}
           </Text>
@@ -39,7 +64,8 @@ const RecentActivity = ({ activity, onPress }) => (
       </View>
     )}
   </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   section: {
@@ -61,6 +87,9 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     gap: 14,
   },
+  paymentCard: {
+    backgroundColor: PAYMENT_CARD_BG,
+  },
   cardPressed: {
     opacity: 0.85,
   },
@@ -72,15 +101,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  paymentIconCircle: {
+    backgroundColor: WHITE,
+  },
   textContent: {
     flex: 1,
     gap: 4,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
   title: {
+    flex: 1,
     fontFamily: 'Jakarta-Bold',
     fontSize: 15,
     color: TEXT_DARK,
     letterSpacing: -0.2,
+  },
+  date: {
+    fontFamily: 'Jakarta-Regular',
+    fontSize: 10,
+    color: TEXT_MUTED,
+    flexShrink: 0,
+    maxWidth: '45%',
+    textAlign: 'right',
   },
   description: {
     fontFamily: 'Jakarta-Regular',

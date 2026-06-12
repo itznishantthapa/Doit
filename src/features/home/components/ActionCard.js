@@ -25,6 +25,7 @@ const ACTION_CARDS = [
     subtitle: 'Track your given assignments',
     icon: Clock01Icon,
     backgroundColor: MINT,
+    screen: 'Pending',
   },
   {
     id: 'completed',
@@ -32,6 +33,7 @@ const ACTION_CARDS = [
     subtitle: 'View and download your assignments',
     icon: TaskDone01Icon,
     backgroundColor: PEACH,
+    screen: 'Completed',
   },
   {
     id: 'all',
@@ -39,6 +41,7 @@ const ACTION_CARDS = [
     subtitle: 'View all of your given assignments',
     icon: ListIndentIncreaseIcon,
     backgroundColor: GHOSTWHITE,
+    screen: 'All',
   },
 ];
 

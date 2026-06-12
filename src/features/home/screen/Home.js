@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import { Notification01Icon } from '@hugeicons/core-free-icons';
@@ -8,31 +8,32 @@ import HomeBanner from '../components/HomeBanner';
 import ActionCard from '../components/ActionCard';
 import ContactHelper from '../components/ContactHelper';
 import RecentActivity from '../components/RecentActivity';
-import {
-  MOCK_RECENT_ACTIVITY,
-  MOCK_USER,
-} from '../data/mockHomeData';
 import { useAuthStore } from '../../auth/store/useAuthStore';
 import { useBanners } from '../../../hooks/query/query/useBanner';
 import { useSocials } from '../../../hooks/query/query/useSocial';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUserNotification } from '../../../hooks/query/query/useUserNotification';
+import { useNavigation } from '@react-navigation/native';
 
 const Home = () => {
+  const navigation = useNavigation();
   const { user } = useAuthStore();
   const { data: banners = [], isBannersLoading } = useBanners();
   const { data: socials = [] } = useSocials();
+  const { data: notifications = [] } = useUserNotification();
 
+  // const hasUnread = useMemo(
+  //   () => notifications.some((notification) => !notification.is_read),
+  //   [notifications],
+  // );
 
-  useEffect(() => {
-    const checkAccessToken = async () => {
-      const refreshToken = await AsyncStorage.getItem('@refresh_token');
-    console.log('refreshToken', refreshToken);
- 
-    };
-    checkAccessToken();
-  }, []);
+  const latestNotification = useMemo(() => notifications[0] ?? null, [notifications]);
 
-  
+  const handleRecentActivityPress = useCallback(() => {
+    if (!latestNotification?.screen_name) return;
+    navigation.navigate(latestNotification.screen_name, {
+      assignmentId: latestNotification.assignment_id,
+    });
+  }, [navigation, latestNotification]);
   return (
     <MyWrapper style={styles.screen}>
       <ScrollView
@@ -44,6 +45,7 @@ const Home = () => {
           <Pressable
             style={({ pressed }) => [styles.notificationButton, pressed && styles.pressed]}
             hitSlop={8}
+            onPress={() => navigation.navigate('Notification')}
           >
             <HugeiconsIcon
               icon={Notification01Icon}
@@ -51,7 +53,7 @@ const Home = () => {
               color={TEXT_DARK}
               strokeWidth={1.5}
             />
-            {MOCK_USER.hasNotification ? <View style={styles.notificationDot} /> : null}
+            {/* {hasUnread ? <View style={styles.notificationDot} /> : null} */}
           </Pressable>
         </View>
 
@@ -61,10 +63,16 @@ const Home = () => {
 
         <View style={styles.bottomContent}>
           <RecentActivity
-            activity={MOCK_RECENT_ACTIVITY}
-            onPress={() => {
-              if (__DEV__) console.log('Recent activity pressed');
-            }}
+            activity={
+              latestNotification
+                ? {
+                    title: latestNotification.title,
+                    description: latestNotification.description,
+                    created_at: latestNotification.created_at,
+                  }
+                : null
+            }
+            onPress={handleRecentActivityPress}
           />
 
           <View style={styles.section}>
@@ -109,17 +117,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  notificationDot: {
-    position: 'absolute',
-    top: 8,
-    right: 10,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#FF3B30',
-    borderWidth: 1.5,
-    borderColor: '#ffffff',
-  },
+  // notificationDot: {
+  //   position: 'absolute',
+  //   top: 8,
+  //   right: 10,
+  //   width: 10,
+  //   height: 10,
+  //   borderRadius: 4,
+  //   backgroundColor: '#FF3B30',
+  //   borderWidth: 1.5,
+  //   borderColor: '#ffffff',
+  // },
   pressed: {
     opacity: 0.7,
   },

@@ -167,7 +167,6 @@ const Authentication = () => {
       await loginSchema.validate(payload, { abortEarly: false });
       setIsSubmitting(true);
       await login(payload);
-      Keyboard.dismiss();
     } catch (err) {
       if (err instanceof yup.ValidationError) {
         setErrors(mapYupErrors(err));
@@ -195,7 +194,6 @@ const Authentication = () => {
       await signUpSchema.validate(payload, { abortEarly: false });
       setIsSubmitting(true);
       await create(payload);
-      Keyboard.dismiss();
     } catch (err) {
       if (err instanceof yup.ValidationError) {
         setErrors(mapYupErrors(err));
