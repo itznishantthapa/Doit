@@ -89,11 +89,15 @@ const Progress = () => {
       <ScreenHeader title="Assignment Details" />
 
       {isLoading ? (
-        <ActivityIndicator style={styles.loader} color={TEXT_DARK} />
+               <View style={styles.errorState}>
+               <Text style={styles.errorText}>
+                 Getting details...
+               </Text>
+             </View>
       ) : isError || !assignment ? (
         <View style={styles.errorState}>
           <Text style={styles.errorText}>
-            {getApiErrorMessage(error, 'Could not load assignment progress.')}
+            {getApiErrorMessage(error, 'Assignment not found.')}
           </Text>
         </View>
       ) : (

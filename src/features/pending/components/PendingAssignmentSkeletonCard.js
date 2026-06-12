@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { BORDER, MINT } from '../../../constants/colors';
 
-const PendingAssignmentSkeletonCard = () => (
-  <View style={styles.card}>
+const PendingAssignmentSkeletonCard = ({ backgroundColor=MINT }) => (
+  <View style={[styles.card, { backgroundColor }]}>
     <View style={styles.headerRow}>
       <View style={styles.iconCircle} />
       <View style={styles.titleContent}>
@@ -22,7 +22,6 @@ const PendingAssignmentSkeletonCard = () => (
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: MINT,
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 16,

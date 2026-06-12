@@ -17,7 +17,6 @@ const Main = () => {
 
     // 2. Place conditional returns AFTER all hooks are registered
     if (!isFontsLoaded) {
-        console.log('Fonts are not loaded');
         return null;
     }
 

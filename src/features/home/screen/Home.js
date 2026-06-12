@@ -17,9 +17,13 @@ import { useNavigation } from '@react-navigation/native';
 const Home = () => {
   const navigation = useNavigation();
   const { user } = useAuthStore();
+
+
   const { data: banners = [], isBannersLoading } = useBanners();
   const { data: socials = [] } = useSocials();
   const { data: notifications = [] } = useUserNotification();
+
+
 
   // const hasUnread = useMemo(
   //   () => notifications.some((notification) => !notification.is_read),

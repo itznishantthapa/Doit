@@ -65,7 +65,7 @@ const Completed = () => {
           }
           ListFooterComponent={isFetchingNextPage ? <ActivityIndicator style={styles.loader} /> : null}
           renderItem={({ item }) =>
-            item.isSkeleton ? <PendingAssignmentSkeletonCard /> : <PendingAssignmentCard onPress={() => handleCompletedAssignmentPress(item)} assignment={item} backgroundColor={PEACH} />
+            item.isSkeleton ? <PendingAssignmentSkeletonCard  backgroundColor={PEACH}/> : <PendingAssignmentCard onPress={() => handleCompletedAssignmentPress(item)} assignment={item} backgroundColor={PEACH} />
           }
         />
       </View>
