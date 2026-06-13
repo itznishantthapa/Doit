@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -30,21 +31,25 @@ export default function App() {
   }, []);
 
   return (
-    <GestureHandlerRootView>
-      <PersistQueryClientProvider
-        client={queryClient}
-        persistOptions={{
-          persister: asyncStoragePersister,
-        }}
-      >
-        <SafeAreaProvider>
-          <KeyboardProvider>
+    <GestureHandlerRootView
+     style={{flex:1,backgroundColor:'#FFFFFF'}}
+     >
+      <BottomSheetModalProvider>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{
+            persister: asyncStoragePersister,
+          }}
+        >
+          <SafeAreaProvider>
+            <KeyboardProvider>
 
-              <Main />
+                <Main />
 
-          </KeyboardProvider>
-        </SafeAreaProvider>
-      </PersistQueryClientProvider>
+            </KeyboardProvider>
+          </SafeAreaProvider>
+        </PersistQueryClientProvider>
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );
 }

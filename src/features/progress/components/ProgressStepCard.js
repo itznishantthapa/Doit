@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  BackHandler,
   Image,
   Modal,
   Pressable,
@@ -8,16 +9,55 @@ import {
   Text,
   View,
 } from 'react-native';
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetScrollView,
+} from '@gorhom/bottom-sheet';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import {
   Cancel01Icon,
   InformationCircleIcon,
 } from '@hugeicons/core-free-icons';
 import Toast from 'react-native-simple-toast';
-import { BORDER, TEXT_DARK, TEXT_MUTED, WHITE } from '../../../constants/colors';
+import { BORDER, GHOSTWHITE, MINT, TEXT_DARK, TEXT_MUTED, WHITE } from '../../../constants/colors';
 import { PROGRESS_STEP_IDS } from '../data/uiData';
 
 const REJECTED = { bg: '#FEE2E2', accent: '#DC2626' };
+
+const PRICING_SECTIONS = [
+  {
+    title: 'Assessment / Coursework',
+    groups: [
+      {
+        title: 'Individual',
+        items: [
+          'Up to 25% weightage: 80 - 100 AUD',
+          '25% - 50% weightage: 130 - 150 AUD',
+        ],
+      },
+      {
+        title: 'Group',
+        items: [
+          'Up to 25% weightage: 100 - 150 AUD',
+          '25% - 50% weightage: 150 - 300 AUD',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Tutorials',
+    items: ['20 - 30 AUD'],
+  },
+  {
+    title: 'Presentation / Other',
+    items: [
+      'Presentation: 25 AUD',
+      'Other tasks: Need to review',
+    ],
+  },
+];
 
 const PaymentReceiptModal = ({ visible, imageUri, onClose }) => (
   <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -40,6 +80,42 @@ const PaymentReceiptModal = ({ visible, imageUri, onClose }) => (
 
 const ProgressStepCard = ({ step, onPress }) => {
   const [receiptVisible, setReceiptVisible] = useState(false);
+  const [pricingSheetOpen, setPricingSheetOpen] = useState(false);
+  const pricingSheetRef = useRef(null);
+  const pricingSnapPoints = useMemo(() => ['60%'], []);
+  const insets = useSafeAreaInsets();
+  const renderPricingBackdrop = useCallback(
+    (props) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        opacity={0.45}
+        pressBehavior="close"
+      />
+    ),
+    [],
+  );
+  const openPricingSheet = useCallback(() => {
+    setPricingSheetOpen(true);
+    pricingSheetRef.current?.present();
+  }, []);
+  const closePricingSheet = useCallback(() => {
+    pricingSheetRef.current?.dismiss();
+    setPricingSheetOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (!pricingSheetOpen) return undefined;
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      closePricingSheet();
+      return true;
+    });
+
+    return () => subscription.remove();
+  }, [closePricingSheet, pricingSheetOpen]);
+
   const isPayment = step.id === PROGRESS_STEP_IDS.PAYMENT;
   const isCompleted = step.id === PROGRESS_STEP_IDS.COMPLETED;
   const isDownloadEnabled = isCompleted && step.is_active && step.status === 'completed';
@@ -104,7 +180,7 @@ const ProgressStepCard = ({ step, onPress }) => {
             )}
           </View>
           <Pressable
-            onPress={() => Toast.show('Pricing info coming soon.', Toast.SHORT)}
+            onPress={openPricingSheet}
             style={({ pressed }) => [styles.infoButton, pressed && styles.pressed]}
           >
             <HugeiconsIcon icon={InformationCircleIcon} size={16} color={WHITE} strokeWidth={1.5} />
@@ -115,7 +191,7 @@ const ProgressStepCard = ({ step, onPress }) => {
       {isPayment && !step.is_active ? (
         <View style={styles.inactiveInfoRow}>
           <Pressable
-            onPress={() => Toast.show('Pricing info coming soon.', Toast.SHORT)}
+            onPress={openPricingSheet}
             style={({ pressed }) => [styles.infoButton, pressed && styles.pressed]}
           >
             <HugeiconsIcon icon={InformationCircleIcon} size={16} color={WHITE} strokeWidth={1.5} />
@@ -129,6 +205,73 @@ const ProgressStepCard = ({ step, onPress }) => {
           imageUri={step.payment_details_image}
           onClose={() => setReceiptVisible(false)}
         />
+      ) : null}
+
+      {isPayment ? (
+        <BottomSheetModal
+          ref={pricingSheetRef}
+          index={0}
+          snapPoints={pricingSnapPoints}
+          backdropComponent={renderPricingBackdrop}
+          enablePanDownToClose
+          onDismiss={() => setPricingSheetOpen(false)}
+          backgroundStyle={styles.sheetBackground}
+          handleIndicatorStyle={styles.sheetHandle}
+        >
+          <View style={styles.sheetHeader}>
+            <Text style={styles.sheetTitle}>Assignment Pricing</Text>
+            <Text style={styles.sheetSubtitle}>
+              Estimated guide based on assignment type, weightage, and task complexity.
+            </Text>
+          </View>
+
+          <BottomSheetScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.pricingContent,
+              { paddingBottom: insets.bottom + 20 },
+            ]}
+          >
+            <View style={styles.pricingGrid}>
+              {PRICING_SECTIONS.map((section, index) => (
+                <View
+                  key={section.title}
+                  style={[
+                    styles.pricingSection,
+                    index === 0
+                      ? styles.pricingSectionFull
+                      : index === 1
+                        ? styles.pricingSectionSmall
+                        : styles.pricingSectionWide,
+                  ]}
+                >
+                  <Text style={styles.pricingSectionTitle}>{section.title}</Text>
+
+                  {section.groups?.map((group) => (
+                    <View key={group.title} style={styles.pricingGroup}>
+                      <View style={styles.pricingGroupHeader}>
+                        <Text style={styles.pricingGroupTitle}>{group.title}</Text>
+                      </View>
+                      {group.items.map((item) => (
+                        <View key={item} style={styles.pricingRow}>
+                          <View style={styles.pricingDot} />
+                          <Text style={styles.pricingText}>{item}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ))}
+
+                  {section.items?.map((item) => (
+                    <View key={item} style={styles.pricingRow}>
+                      <View style={styles.pricingDot} />
+                      <Text style={styles.pricingText}>{item}</Text>
+                    </View>
+                  ))}
+                </View>
+              ))}
+            </View>
+          </BottomSheetScrollView>
+        </BottomSheetModal>
       ) : null}
 
       {isCompleted ? (
@@ -321,6 +464,104 @@ const styles = StyleSheet.create({
     height: 420,
     borderRadius: 10,
     backgroundColor: '#F5F6F8',
+  },
+  sheetBackground: {
+    backgroundColor: WHITE,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+  },
+  sheetHandle: {
+    width: 42,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: BORDER,
+  },
+  sheetHeader: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 6,
+    marginBottom: 16,
+  },
+  sheetTitle: {
+    fontFamily: 'Jakarta-Bold',
+    fontSize: 21,
+    color: TEXT_DARK,
+    letterSpacing: -0.4,
+    textAlign: 'center',
+  },
+  sheetSubtitle: {
+    fontFamily: 'Jakarta-Regular',
+    fontSize: 13,
+    color: TEXT_MUTED,
+    lineHeight: 18,
+    marginTop: 5,
+    maxWidth: 300,
+    textAlign: 'center',
+  },
+  pricingContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+  },
+  pricingGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  pricingSection: {
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    backgroundColor: MINT,
+  },
+  pricingSectionSmall: {
+    width: '40%',
+  },
+  pricingSectionWide: {
+    flex: 1,
+    minWidth: 0,
+  },
+  pricingSectionFull: {
+    width: '100%',
+  },
+  pricingSectionTitle: {
+    fontFamily: 'Jakarta-Bold',
+    fontSize: 15,
+    color: TEXT_DARK,
+    letterSpacing: -0.2,
+    marginBottom: 9,
+  },
+  pricingGroup: {
+    marginBottom: 11,
+  },
+  pricingGroupHeader: {
+    alignSelf: 'flex-start',
+    paddingVertical: 4,
+    marginBottom: 8,
+  },
+  pricingGroupTitle: {
+    fontFamily: 'Jakarta-SemiBold',
+    fontSize: 12,
+    color: TEXT_DARK,
+  },
+  pricingRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 7,
+  },
+  pricingDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: TEXT_DARK,
+    marginTop: 7,
+  },
+  pricingText: {
+    flex: 1,
+    fontFamily: 'Jakarta-Regular',
+    fontSize: 13,
+    lineHeight: 18,
+    color: TEXT_MUTED,
   },
 });
 

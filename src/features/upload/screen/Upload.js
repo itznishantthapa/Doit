@@ -55,7 +55,7 @@ const ASSIGNMENT_TYPES = [
   {
     id: 'tutorial',
     title: 'Tutorial / Workshop',
-    subtitle: 'Tutorial or workshop to complete',
+    subtitle: 'Weekly tutorial or workshop to complete',
   },
   {
     id: 'others',

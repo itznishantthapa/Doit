@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "xDoit",
-    "slug": "xDoit",
+    "name": "Doit.",
+    "slug": "Doit",
     "version": "1.0.0",
     "plugins": [
       "@react-native-community/datetimepicker",
