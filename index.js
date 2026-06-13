@@ -1,7 +1,22 @@
 
 import { registerRootComponent } from 'expo';
 import App from './App';
+import notifee, { EventType } from '@notifee/react-native';
+import messaging from '@react-native-firebase/messaging';
+import { displayNotification } from './src/services/notificationService';
 
 
-
-registerRootComponent(App);
+// Handle background messages silently and cleanly
+messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+    await displayNotification(remoteMessage);
+  });
+  
+  // Capture interaction context while application process runs in suspension
+  notifee.onBackgroundEvent(async ({ type, detail }) => {
+    if (type === EventType.PRESS) {
+    //   console.log('Background click data intercept:', detail.notification?.data);
+      console.log('Notification tapped in background!');
+    }
+  });
+  
+  registerRootComponent(App);

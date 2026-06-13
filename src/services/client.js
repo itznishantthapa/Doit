@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useAuthStore } from '../features/auth/store/useAuthStore';
+import { authBridge } from './authBridge';
 import { endpoints } from './endpoints';
 
 let refreshPromise = null;
@@ -25,9 +25,8 @@ const shouldLogoutOnRefreshFailure = (refreshError) => {
 
 const getRefreshedAccessToken = () => {
   if (!refreshPromise) {
-    refreshPromise = useAuthStore
-      .getState()
-      .apiRefreshToken()
+    refreshPromise = authBridge
+      .refreshAccessToken()
       .finally(() => {
         refreshPromise = null;
       });
@@ -53,7 +52,7 @@ API_CLIENT.interceptors.request.use((config) => {
     return config;
   }
 
-  const accessToken = useAuthStore.getState().accessToken;
+  const accessToken = authBridge.getAccessToken();
 
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -92,7 +91,7 @@ API_CLIENT.interceptors.response.use(
         return API_CLIENT(originalRequest);
       } catch (refreshError) {
         if (shouldLogoutOnRefreshFailure(refreshError)) {
-          await useAuthStore.getState().logout();
+          await authBridge.logout();
         }
 
         return Promise.reject(refreshError);

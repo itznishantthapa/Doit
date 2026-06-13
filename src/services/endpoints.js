@@ -1,6 +1,9 @@
 
 
 export const endpoints = {
+    // user
+    get_user : "/api/auth/get-user-data/",
+
     // Auth
     create: "/api/auth/create/",
     login: "/api/auth/login/",
@@ -22,5 +25,6 @@ export const endpoints = {
 
     //notifications
     get_user_notifications: "/api/notification/get-user-notifications/",
+    post_fcm_token: "/api/notification/save-notification-token/",
 
 }

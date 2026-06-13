@@ -5,8 +5,11 @@ import {
   apiLogin,
   apiRefreshToken as refreshAccessToken,
   getStoredAuthData,
+  apiSyncPushToken,
+  apiGetUserData,
 } from '../api/api';
 import { Keyboard } from 'react-native';
+import { registerAuthHandlers } from '../../../services/authBridge';
 
 export const useAuthStore = create((set, get) => ({
   user: undefined, // undefined = loading, null = logged out, object = logged in
@@ -85,4 +88,28 @@ export const useAuthStore = create((set, get) => ({
       refreshToken: null,
     });
   },
+
+
+
+  syncPushToken: async (fcmToken) => {
+    if (!fcmToken) return;
+
+    await apiSyncPushToken(fcmToken);
+    await get().getUserData();
+  },
+
+  getUserData: async () => {
+    const user = await apiGetUserData();
+    set({ user });
+    return user;
+  },
+
+
+
 }));
+
+registerAuthHandlers({
+  getAccessToken: () => useAuthStore.getState().accessToken,
+  refreshAccessToken: () => useAuthStore.getState().apiRefreshToken(),
+  logout: () => useAuthStore.getState().logout(),
+});

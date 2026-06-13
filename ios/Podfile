@@ -16,7 +16,7 @@ install! 'cocoapods',
 
 prepare_react_native_project!
 
-target 'xDoit' do
+target 'Doit.' do
   use_expo_modules!
   # Custom Added by Thapa
   use_frameworks! :linkage => :static

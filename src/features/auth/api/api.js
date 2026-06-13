@@ -66,3 +66,16 @@ export const apiRefreshToken = async (refreshToken) => {
 
   return accessToken;
 };
+
+export const apiSyncPushToken = async (fcmToken) => {
+  const response = await API_CLIENT.post(endpoints.post_fcm_token, { token: fcmToken });
+  return response.data;
+};
+
+
+export const apiGetUserData = async () => {
+  const response = await API_CLIENT.get(endpoints.get_user);
+  const { user } = response.data;
+  await AsyncStorage.setItem('@user', JSON.stringify(user));
+  return user;
+};

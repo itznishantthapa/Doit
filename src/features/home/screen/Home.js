@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HugeiconsIcon } from '@hugeicons/react-native';
-import { Notification01Icon } from '@hugeicons/core-free-icons';
+import { Notification01Icon, NotificationOff01Icon } from '@hugeicons/core-free-icons';
 import { MyWrapper } from '../../../components/wrapper/MyWrapper';
 import { TEXT_DARK } from '../../../constants/colors';
 import HomeBanner from '../components/HomeBanner';
@@ -52,7 +52,7 @@ const Home = () => {
             onPress={() => navigation.navigate('Notification')}
           >
             <HugeiconsIcon
-              icon={Notification01Icon}
+              icon={user?.is_notification_subscribed? Notification01Icon : NotificationOff01Icon}
               size={24}
               color={TEXT_DARK}
               strokeWidth={1.5}
