@@ -1,6 +1,7 @@
 // src/hooks/custom/useNotificationEngine.js
 import { useEffect } from 'react';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import { getMessaging, onMessage, onTokenRefresh } from '@react-native-firebase/messaging';
 import notifee, { EventType } from '@notifee/react-native';
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
 import { queryClient } from '../../services/queryClient';
@@ -20,6 +21,7 @@ export function useNotificationEngine() {
 
     let isMounted = true;
     const activeUnsubscribers = [];
+    const messaging = getMessaging(getApp());
 
     const startNotificationPipeline = async () => {
       const hasPermission = await requestNotificationPermission();
@@ -35,7 +37,7 @@ export function useNotificationEngine() {
 
       // 1. Foreground FCM Listener
       activeUnsubscribers.push(
-        messaging().onMessage(async (remoteMessage) => {
+        onMessage(messaging, async (remoteMessage) => {
             console.log("⚡ Push notification received silently in foreground!");
 
             queryClient.invalidateQueries({ queryKey: USER_NOTIFICATIONS_QUERY_KEY });
@@ -47,7 +49,7 @@ export function useNotificationEngine() {
 
       // 2. Token Refresh Synchronization
       activeUnsubscribers.push(
-        messaging().onTokenRefresh((newToken) => {
+        onTokenRefresh(messaging, (newToken) => {
           useAuthStore.getState().syncPushToken(newToken);
         })
       );

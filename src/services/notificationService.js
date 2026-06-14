@@ -1,17 +1,38 @@
 // src/services/notificationService.js
 import { Platform, PermissionsAndroid } from 'react-native';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import {
+  AuthorizationStatus,
+  getMessaging,
+  getToken,
+  registerDeviceForRemoteMessages,
+  requestPermission,
+} from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance, AndroidStyle, EventType } from '@notifee/react-native';
 
 export const requestNotificationPermission = async () => {
   try {
+    const messagingInstance = getMessaging(getApp());
+
     if (Platform.OS === 'android' && Platform.Version >= 33) {
       const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
       if (granted !== PermissionsAndroid.RESULTS.GRANTED) return false;
     }
-    // iOS / Android fallback configuration request
-    const authStatus = await messaging().requestPermission();
-    return authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (Platform.OS === 'ios') {
+      const authStatus = await requestPermission(messagingInstance);
+      const hasPermission =
+        authStatus === AuthorizationStatus.AUTHORIZED ||
+        authStatus === AuthorizationStatus.PROVISIONAL;
+
+      if (!hasPermission) return false;
+    }
+
+    if (Platform.OS === 'android') {
+      await registerDeviceForRemoteMessages(messagingInstance);
+    }
+
+    return true;
   } catch (error) {
     console.error('Permission error:', error);
     return false;
@@ -20,8 +41,12 @@ export const requestNotificationPermission = async () => {
 
 export const getFCMToken = async () => {
   try {
-    return await messaging().getToken();
-  } catch {
+    console.log('Getting FCM token');
+    const token = await getToken(getMessaging(getApp()));
+    console.log('FCM token:', token);
+    return token;
+  } catch (error) {
+    console.error('FCM token error:', error);
     return null;
   }
 };

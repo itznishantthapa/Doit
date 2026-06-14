@@ -1,13 +1,15 @@
+import './reanimatedLogger';
 
 import { registerRootComponent } from 'expo';
 import App from './App';
 import notifee, { EventType } from '@notifee/react-native';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import { getMessaging, setBackgroundMessageHandler } from '@react-native-firebase/messaging';
 import { displayNotification } from './src/services/notificationService';
 
 
 // Handle background messages silently and cleanly
-messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+setBackgroundMessageHandler(getMessaging(getApp()), async (remoteMessage) => {
     await displayNotification(remoteMessage);
   });
   
