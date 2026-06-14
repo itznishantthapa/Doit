@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { HugeiconsIcon } from '@hugeicons/react-native';
@@ -84,6 +84,12 @@ const Progress = () => {
     [assignment],
   );
 
+  const completedStep = steps.find((s) => s.id === 'completed');
+  const showDownloadGuide =
+    Platform.OS === 'ios' &&
+    completedStep?.is_active &&
+    completedStep?.status === 'completed';
+
   return (
     <MyWrapper style={styles.screen}>
       <ScreenHeader title="Assignment Details" />
@@ -125,11 +131,31 @@ const Progress = () => {
                   </View>
 
                   <View style={styles.cardWrap}>
-                    <ProgressStepCard step={step} assignmentId={assignmentId} />
+                    <ProgressStepCard
+                      step={step}
+                      assignmentId={assignmentId}
+                      assignmentTitle={assignment.title}
+                    />
                   </View>
                 </View>
               ))}
             </View>
+
+            {showDownloadGuide ? (
+              <View style={styles.downloadGuideBox}>
+                <Text style={styles.downloadGuideLabel}>File will be downloaded at:</Text>
+                <View style={styles.downloadGuidePath}>
+                  {['Files', 'Browse', 'On My iPhone', 'Doit.'].map((segment, index, arr) => (
+                    <React.Fragment key={segment}>
+                      <Text style={styles.downloadGuideSegment}>{segment}</Text>
+                      {index < arr.length - 1 ? (
+                        <Text style={styles.downloadGuideArrow}>{'→'}</Text>
+                      ) : null}
+                    </React.Fragment>
+                  ))}
+                </View>
+              </View>
+            ) : null}
           </ScrollView>
         </>
       )}
@@ -254,6 +280,35 @@ const styles = StyleSheet.create({
   cardWrap: {
     flex: 1,
     paddingBottom: 14,
+  },
+  downloadGuideBox: {
+    marginTop: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    backgroundColor: '#F5F6F8',
+    borderRadius: 14,
+    gap: 8,
+  },
+  downloadGuideLabel: {
+    fontFamily: 'Jakarta-SemiBold',
+    fontSize: 12,
+    color: TEXT_DARK,
+  },
+  downloadGuidePath: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 4,
+  },
+  downloadGuideSegment: {
+    fontFamily: 'Jakarta-Regular',
+    fontSize: 12,
+    color: TEXT_MUTED,
+  },
+  downloadGuideArrow: {
+    fontFamily: 'Jakarta-Regular',
+    fontSize: 12,
+    color: '#000000',
   },
 });
 

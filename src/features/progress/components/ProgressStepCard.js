@@ -27,6 +27,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Clipboard from '@react-native-clipboard/clipboard';
 import CoolButton from '../../../components/button/CoolButton';
 import { useSubmitPayment } from '../../../hooks/query/mutation/useSubmitPayment';
+import useDownloadAssignment from '../../../hooks/custom/useDownloadAssignment';
 import { BORDER, GHOSTWHITE, TEXT_DARK, TEXT_MUTED, WHITE } from '../../../constants/colors';
 import { PROGRESS_STEP_IDS } from '../data/uiData';
 
@@ -84,7 +85,7 @@ const PaymentReceiptModal = ({ visible, imageUri, onClose }) => (
   </Modal>
 );
 
-const ProgressStepCard = ({ step, assignmentId }) => {
+const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
   const [receiptVisible, setReceiptVisible] = useState(false);
   const [pricingSheetOpen, setPricingSheetOpen] = useState(false);
   const [paymentSheetOpen, setPaymentSheetOpen] = useState(false);
@@ -162,7 +163,13 @@ const ProgressStepCard = ({ step, assignmentId }) => {
   const isPaymentVerifying = isPayment && step.is_active && step.status === 'doing';
   const showDoingStepLoader = isDoing && step.is_active && step.status === 'pending';
   const showPaymentLoader = isPaymentVerifying;
-  const isDownloadEnabled = isCompleted && step.is_active && step.status === 'completed';
+  const isDownloadEnabled =
+    isCompleted && step.is_active && step.status === 'completed' && !!step.completed_file_url;
+
+  const { download: downloadAssignment, isDownloading, isDownloaded } = useDownloadAssignment({
+    fileUrl: step.completed_file_url,
+    assignmentTitle: assignmentTitle ?? 'Assignment',
+  });
   const isRejected = isPayment && step.is_active && step.status === 'rejected';
   const isPaid = isPayment && step.is_active && step.status === 'completed';
   const showPaymentDue = isPayment && step.is_active && step.status === 'pending' && step.price;
@@ -196,7 +203,7 @@ const ProgressStepCard = ({ step, assignmentId }) => {
     paymentSheetRef.current?.present();
   }, [canOpenPaymentSheet]);
 
-  const handleSubmitPayment = useCallback( () => {
+  const handleSubmitPayment = useCallback(() => {
     if (operationType === 'post' && step.is_max_submit_reached) return;
 
     if (!screenshot) {
@@ -552,21 +559,32 @@ const ProgressStepCard = ({ step, assignmentId }) => {
 
       {isCompleted ? (
         <Pressable
-          disabled={!isDownloadEnabled}
+          disabled={!isDownloadEnabled || isDownloading || isDownloaded}
+          onPress={downloadAssignment}
           style={({ pressed }) => [
             styles.downloadButton,
             !isDownloadEnabled && styles.downloadButtonDisabled,
-            isDownloadEnabled && pressed && styles.pressed,
+            isDownloaded && styles.downloadButtonDone,
+            isDownloadEnabled && !isDownloading && !isDownloaded && pressed && styles.pressed,
           ]}
         >
-          <Text
-            style={[
-              styles.downloadButtonText,
-              !isDownloadEnabled && styles.downloadButtonTextDisabled,
-            ]}
-          >
-            Download Assignment
-          </Text>
+          {isDownloading ? (
+            <LoaderKitView
+              style={styles.downloadLoader}
+              name="BallBeat"
+              animationSpeedMultiplier={1.0}
+              color={WHITE}
+            />
+          ) : (
+            <Text
+              style={[
+                styles.downloadButtonText,
+                !isDownloadEnabled && styles.downloadButtonTextDisabled,
+              ]}
+            >
+              {isDownloaded ? 'Downloaded' : 'Download Assignment'}
+            </Text>
+          )}
         </Pressable>
       ) : null}
     </>
@@ -698,9 +716,18 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingVertical: 12,
     alignItems: 'center',
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  downloadButtonDone: {
+    backgroundColor: '#2F6B52',
   },
   downloadButtonDisabled: {
     backgroundColor: BORDER,
+  },
+  downloadLoader: {
+    width: 36,
+    height: 16,
   },
   downloadButtonText: {
     fontFamily: 'Jakarta-SemiBold',
