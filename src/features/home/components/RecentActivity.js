@@ -39,14 +39,9 @@ const RecentActivity = ({ activity, onPress }) => {
           />
         </View>
         <View style={styles.textContent}>
-          <View style={styles.titleRow}>
-            <Text style={styles.title} numberOfLines={1}>
-              {activity.title}
-            </Text>
-            {activity.created_at ? (
-              <Text style={styles.date}>{activity.created_at}</Text>
-            ) : null}
-          </View>
+          <Text style={styles.title} numberOfLines={1}>
+            {activity.title}
+          </Text>
           <Text style={styles.description} numberOfLines={2}>
             {activity.description}
           </Text>
@@ -108,26 +103,11 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 4,
   },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
   title: {
-    flex: 1,
     fontFamily: 'Jakarta-Bold',
     fontSize: 15,
     color: TEXT_DARK,
     letterSpacing: -0.2,
-  },
-  date: {
-    fontFamily: 'Jakarta-Regular',
-    fontSize: 10,
-    color: TEXT_MUTED,
-    flexShrink: 0,
-    maxWidth: '45%',
-    textAlign: 'right',
   },
   description: {
     fontFamily: 'Jakarta-Regular',

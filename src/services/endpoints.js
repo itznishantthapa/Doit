@@ -27,4 +27,7 @@ export const endpoints = {
     get_user_notifications: "/api/notification/get-user-notifications/",
     post_fcm_token: "/api/notification/save-notification-token/",
 
+    // payment
+    submit_payment: "/api/payment/submit-payment/"
+
 }

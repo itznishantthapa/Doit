@@ -125,10 +125,7 @@ const Progress = () => {
                   </View>
 
                   <View style={styles.cardWrap}>
-                    <ProgressStepCard
-                      step={step}
-                      onPress={() => __DEV__ && console.log('Payment pressed:', assignmentId)}
-                    />
+                    <ProgressStepCard step={step} assignmentId={assignmentId} />
                   </View>
                 </View>
               ))}
