@@ -11,7 +11,9 @@ import {
 } from '@hugeicons/core-free-icons';
 import { SOFTGREY, TEXT_DARK, TEXT_MUTED } from '../../../constants/colors';
 
-const MAX_SOCIALS = 4;
+const MAX_SOCIALS = 5;
+
+const SOCIAL_PRIORITY = ['whatsapp', 'viber', 'instagram', 'tiktok', 'facebook', 'telegram'];
 
 const SOCIAL_ICONS = {
   whatsapp: WhatsappIcon,
@@ -45,6 +47,11 @@ const ContactHelper = ({ socials = [] }) => {
         .filter((social) => {
           const name = social.social_name?.toLowerCase();
           return name && SOCIAL_ICONS[name] && social.social_url;
+        })
+        .sort((a, b) => {
+          const aIndex = SOCIAL_PRIORITY.indexOf(a.social_name.toLowerCase());
+          const bIndex = SOCIAL_PRIORITY.indexOf(b.social_name.toLowerCase());
+          return aIndex - bIndex;
         })
         .slice(0, MAX_SOCIALS),
     [socials],

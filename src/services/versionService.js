@@ -4,17 +4,12 @@ import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 
 // Update these when releasing new versions
 export const CURRENT_IOS_VERSION = 1.0;
-export const CURRENT_ANDROID_VERSION = 1;
+export const CURRENT_ANDROID_VERSION = 1.1;
 
 const VERSION_COLLECTION = 'version';
 const VERSION_DOC_ID = 'docs4idfordoitok8io';
 const APP_URL_COLLECTION = 'appUrl';
 const APP_URL_DOC_ID = 'docs4appurlfordoitok8io';
-
-const DEFAULT_STORE_URLS = {
-  appstoreUrl: 'https://apps.apple.com/us/app/doit/id6757985105',
-  playstoreUrl: 'https://play.google.com/store/apps/details?id=com.blackonedevs.doit',
-};
 
 const getCurrentAppVersion = () =>
   Platform.OS === 'ios' ? CURRENT_IOS_VERSION : CURRENT_ANDROID_VERSION;
@@ -51,15 +46,17 @@ export const getAppStoreUrls = async () => {
     const db = getFirestore(getApp());
     const urlDoc = await getDoc(doc(db, APP_URL_COLLECTION, APP_URL_DOC_ID));
 
-    if (!urlDoc.exists()) return DEFAULT_STORE_URLS;
+    if (!urlDoc.exists()) return null;
 
     const data = urlDoc.data();
+    if (!data?.appstoreUrl || !data?.playstoreUrl) return null;
+
     return {
-      appstoreUrl: data?.appstoreUrl ?? DEFAULT_STORE_URLS.appstoreUrl,
-      playstoreUrl: data?.playstoreUrl ?? DEFAULT_STORE_URLS.playstoreUrl,
+      appstoreUrl: data.appstoreUrl,
+      playstoreUrl: data.playstoreUrl,
     };
   } catch (error) {
     if (__DEV__) console.error('Error fetching app store URLs from Firestore:', error);
-    return DEFAULT_STORE_URLS;
+    return null;
   }
 };

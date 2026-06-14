@@ -26,6 +26,7 @@ import {
 import { Calendar } from 'react-native-calendars';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
+import * as yup from 'yup';
 import Toast from 'react-native-simple-toast';
 import { MyWrapper } from '../../../components/wrapper/MyWrapper';
 import { ScreenHeader } from '../../../components/header/ScreenHeader';
@@ -94,6 +95,15 @@ const WORK_TYPES = [
 ];
 
 const FOOTER_HEIGHT = 72;
+
+const EMOJI_REGEX = /\p{Extended_Pictographic}/u;
+
+const assessmentNameSchema = yup
+  .string()
+  .trim()
+  .required('Required *')
+  .max(30, 'Name cannot exceed 30 characters')
+  .test('no-emoji', 'Name cannot contain emojis', (value) => !value || !EMOJI_REGEX.test(value));
 
 const toDateString = (date) => {
   const year = date.getFullYear();
@@ -423,6 +433,22 @@ const Upload = () => {
     setOutlineFiles((prev) => prev.filter((file) => file.id !== id));
   };
 
+  const validateAssessmentName = (value, { onChange = false } = {}) => {
+    try {
+      assessmentNameSchema.validateSync(value);
+      setErrors((current) => ({ ...current, assessmentName: '' }));
+    } catch (error) {
+      if (!(error instanceof yup.ValidationError)) return;
+
+      if (onChange && !value.trim()) {
+        setErrors((current) => ({ ...current, assessmentName: '' }));
+        return;
+      }
+
+      setErrors((current) => ({ ...current, assessmentName: error.message }));
+    }
+  };
+
   const validateForm = () => {
     const nextErrors = {};
 
@@ -434,8 +460,12 @@ const Upload = () => {
       nextErrors.description = 'Required *';
     }
 
-    if (!assessmentName.trim()) {
-      nextErrors.assessmentName = 'Required *';
+    try {
+      assessmentNameSchema.validateSync(assessmentName);
+    } catch (error) {
+      if (error instanceof yup.ValidationError) {
+        nextErrors.assessmentName = error.message;
+      }
     }
 
     setErrors(nextErrors);
@@ -550,11 +580,10 @@ const Upload = () => {
             placeholder={copy.namePlaceholder}
             placeholderTextColor={TEXT_MUTED}
             value={assessmentName}
+            maxLength={31}
             onChangeText={(text) => {
               setAssessmentName(text);
-              if (text.trim()) {
-                setErrors((current) => ({ ...current, assessmentName: '' }));
-              }
+              validateAssessmentName(text, { onChange: true });
             }}
           />
           {errors.assessmentName ? <Text style={styles.errorText}>{errors.assessmentName}</Text> : null}

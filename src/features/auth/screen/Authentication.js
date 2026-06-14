@@ -17,6 +17,7 @@ import { EyeIcon, ViewOffIcon } from '@hugeicons/core-free-icons';
 import { MyWrapper } from '../../../components/wrapper/MyWrapper';
 import { TEXT_DARK, TEXT_MUTED, WHITE } from '../../../constants/colors';
 import CoolButton from '../../../components/button/CoolButton';
+import Toast from 'react-native-simple-toast';
 import Animated, { FadeIn, FadeOut, FadeInDown, FadeOutUp } from 'react-native-reanimated';
 import { useKeyboardState } from 'react-native-keyboard-controller';
 import { getDeviceData } from '../device/device';
@@ -69,20 +70,6 @@ const mapYupErrors = (err) => {
 
 const INVALID_CREDENTIALS_MESSAGE = 'Invalid username or password';
 const USERNAME_TAKEN_MESSAGE = 'Username is already taken.';
-
-const mapLoginApiError = (message) => {
-  if (message === INVALID_CREDENTIALS_MESSAGE) {
-    return { username: true, password: message };
-  }
-  return { form: message };
-};
-
-const mapCreateApiError = (message) => {
-  if (message === USERNAME_TAKEN_MESSAGE) {
-    return { username: message };
-  }
-  return { form: message };
-};
 
 const Authentication = () => {
   const insets = useSafeAreaInsets();
@@ -171,7 +158,12 @@ const Authentication = () => {
       if (err instanceof yup.ValidationError) {
         setErrors(mapYupErrors(err));
       } else {
-        setErrors(mapLoginApiError(getApiErrorMessage(err, 'Could not log in.')));
+        const message = getApiErrorMessage(err, 'Unable to log in.');
+        if (message === INVALID_CREDENTIALS_MESSAGE) {
+          setErrors({ username: true, password: message });
+        } else {
+          Toast.show(message, Toast.SHORT);
+        }
       }
     } finally {
       setIsSubmitting(false);
@@ -198,7 +190,12 @@ const Authentication = () => {
       if (err instanceof yup.ValidationError) {
         setErrors(mapYupErrors(err));
       } else {
-        setErrors(mapCreateApiError(getApiErrorMessage(err, 'Could not create account.')));
+        const message = getApiErrorMessage(err, 'Unable to create account.');
+        if (message === USERNAME_TAKEN_MESSAGE) {
+          setErrors({ username: message });
+        } else {
+          Toast.show(message, Toast.SHORT);
+        }
       }
     } finally {
       setIsSubmitting(false);
@@ -386,10 +383,6 @@ const Authentication = () => {
                 </Text>
               </Text>
             </Pressable>
-
-            {errors.form ? (
-              <Text style={styles.errorText}>{errors.form}</Text>
-            ) : null}
 
             <CoolButton
               onPress={handleSubmit}
