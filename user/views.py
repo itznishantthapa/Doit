@@ -1,14 +1,36 @@
 import logging
 
 from django.contrib.auth import authenticate
+from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 from .models import User
-from .utils import get_tokens_for_user, get_user_data
+from .utils import get_tokens_for_user, get_user_data as build_user_payload
 
 logger = logging.getLogger(__name__)
+
+
+
+
+
+@api_view(['GET'])
+def get_user_data(request):
+    try:
+        user = request.user
+        return Response({
+            'message': 'User data retrieved successfully.',
+            'user': build_user_payload(user),
+        }, status=status.HTTP_200_OK)
+    except Exception:
+        logger.exception('Unexpected error during user data retrieval')
+        return Response(
+            {'message': 'Could not retrieve user data.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(['POST'])
@@ -48,8 +70,13 @@ def create(request):
         return Response({
             'message': 'Account created successfully',
             'tokens': get_tokens_for_user(user),
-            'user': get_user_data(user),
+            'user': build_user_payload(user),
         }, status=status.HTTP_201_CREATED)
+    except IntegrityError:
+        return Response(
+            {'message': 'Username is already taken.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     except Exception:
         logger.exception('Unexpected error during account creation')
         return Response(
@@ -92,11 +119,54 @@ def login(request):
         return Response({
             'message': 'Login successful',
             'tokens': get_tokens_for_user(user),
-            'user': get_user_data(user),
+            'user': build_user_payload(user),
         }, status=status.HTTP_200_OK)
     except Exception:
         logger.exception('Unexpected error during login')
         return Response(
             {'message': 'Could not log in.'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+
+@api_view(["POST"])
+def refresh_token(request):
+    try:
+        refresh = request.data.get("refresh")
+        if not refresh:
+            return Response(
+                {"message": "Refresh token required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Attempt to initialize and validate the token structure and expiration
+        token = RefreshToken(refresh)
+
+        return Response({
+            "message": "Token refreshed successfully.",
+            "access": str(token.access_token)
+        }, status=status.HTTP_200_OK)
+
+    except TokenError as e:
+        # Check if the internal string exception notes an actual timeout expiration
+        error_message = str(e).lower()
+        is_expired = "expired" in error_message
+
+        if is_expired:
+            return Response({
+                "message": "Your session has expired. Please log in again.",
+                "refresh_expired": True  # Clean structural flag for your frontend interceptor
+            }, status=status.HTTP_401_UNAUTHORIZED)
+            
+        return Response({
+            "message": "Invalid session token.",
+            "refresh_expired": False
+        }, status=status.HTTP_401_UNAUTHORIZED)
+
+    except Exception:
+        logger.exception("Unexpected error during token refreshment processing")
+        return Response(
+            {"message": "Could not process token refresh."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

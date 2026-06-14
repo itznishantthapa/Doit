@@ -53,6 +53,7 @@ class User(AbstractBaseUser):
     # Client tracking hardware specs
     device_id = models.CharField(max_length=255, blank=True, null=True)
     platform = models.CharField(max_length=50, blank=True, null=True) # e.g., Android, iOS, Web
+    notification_token = models.TextField(blank=True, null=True)
     
     # Authorization & Status flags
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')

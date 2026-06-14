@@ -22,6 +22,7 @@ def get_user_data(user):
         'program': user.program,
         'device_id': user.device_id,
         'platform': user.platform,
+        'is_notification_subscribed': True if user.notification_token else False,
         'is_suspended': user.is_suspended,
         'created_at': user.created_at.isoformat() if user.created_at else None,
     }

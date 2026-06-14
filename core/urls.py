@@ -25,6 +25,10 @@ urlpatterns = [
     path('api/banner/', include('banner.urls')),
     path('api/social/', include('social.urls')),
     path('api/busydate/', include('busydate.urls')),
+    path('api/assignment/', include('assignment.urls')),
+    path('api/assignmentprogress/', include('assignmentprogress.urls')),
+    path('api/notification/', include('notification.urls')),
+    path('api/payment/', include('payment.urls')),
 ]
 
 if settings.DEBUG:
