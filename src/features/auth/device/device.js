@@ -17,7 +17,7 @@ export const getDeviceData = async () => {
 
     return { deviceId, platform: Platform.OS };
   } catch (error) {
-    console.error("Device data resolution fallback:", error);
+    if (__DEV__) console.error("Device data resolution fallback:", error);
     return { deviceId: 'fallback_error_id', platform: Platform.OS };
   }
 };

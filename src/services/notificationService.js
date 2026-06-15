@@ -34,19 +34,17 @@ export const requestNotificationPermission = async () => {
 
     return true;
   } catch (error) {
-    console.error('Permission error:', error);
+    if (__DEV__) console.error('Permission error:', error);
     return false;
   }
 };
 
 export const getFCMToken = async () => {
   try {
-    console.log('Getting FCM token');
     const token = await getToken(getMessaging(getApp()));
-    console.log('FCM token:', token);
     return token;
   } catch (error) {
-    console.error('FCM token error:', error);
+    if (__DEV__) console.error('FCM token error:', error);
     return null;
   }
 };

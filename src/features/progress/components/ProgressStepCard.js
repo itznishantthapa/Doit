@@ -464,20 +464,20 @@ const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
               <View style={styles.receiptTear} />
             </View>
 
-            <View style={styles.pricingCardRow}>
-              {PRICING_SECTIONS.slice(1).map((section, index) => (
-                <View
-                  key={section.title}
-                  style={[
-                    styles.receiptCard,
-                    index === 0 ? styles.pricingCardSmall : styles.pricingCardFlex,
-                  ]}
-                >
+            <View style={styles.pricingCardColumn}>
+              {PRICING_SECTIONS.slice(1).map((section) => (
+                <View key={section.title} style={[styles.receiptCard, styles.pricingSectionCard]}>
                   <Text style={styles.receiptCardTitle}>{section.title}</Text>
-                  <View style={styles.receiptDivider} />
+                  <View style={styles.pricingSectionDivider} />
 
-                  {section.items.map((item) => (
-                    <Text key={item} style={styles.pricingReceiptItem}>
+                  {section.items.map((item, itemIndex) => (
+                    <Text
+                      key={item}
+                      style={[
+                        styles.pricingReceiptItem,
+                        itemIndex === section.items.length - 1 && styles.pricingReceiptItemLast,
+                      ]}
+                    >
                       {item}
                     </Text>
                   ))}
@@ -888,16 +888,18 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: BORDER,
   },
-  pricingCardRow: {
-    flexDirection: 'row',
-    gap: 10,
+  pricingCardColumn: {
+    gap: 8,
   },
-  pricingCardSmall: {
-    width: '40%',
+  pricingSectionCard: {
+    alignSelf: 'stretch',
+    paddingTop: 12,
   },
-  pricingCardFlex: {
-    flex: 1,
-    minWidth: 0,
+  pricingSectionDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: BORDER,
+    borderStyle: 'dashed',
+    marginBottom: 8,
   },
   pricingGroupTitle: {
     fontFamily: 'Jakarta-SemiBold',
@@ -911,6 +913,9 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: TEXT_MUTED,
     marginBottom: 6,
+  },
+  pricingReceiptItemLast: {
+    marginBottom: 0,
   },
   paymentSheetContent: {
     paddingHorizontal: 20,

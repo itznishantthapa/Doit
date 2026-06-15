@@ -3,8 +3,8 @@ import { getApp } from '@react-native-firebase/app';
 import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 
 // Update these when releasing new versions
-export const CURRENT_IOS_VERSION = 1.0;
-export const CURRENT_ANDROID_VERSION = 1.1;
+export const CURRENT_IOS_VERSION = 1;
+export const CURRENT_ANDROID_VERSION = 1;
 
 const VERSION_COLLECTION = 'version';
 const VERSION_DOC_ID = 'docs4idfordoitok8io';

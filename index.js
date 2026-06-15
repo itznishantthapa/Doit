@@ -16,8 +16,7 @@ setBackgroundMessageHandler(getMessaging(getApp()), async (remoteMessage) => {
   // Capture interaction context while application process runs in suspension
   notifee.onBackgroundEvent(async ({ type, detail }) => {
     if (type === EventType.PRESS) {
-    //   console.log('Background click data intercept:', detail.notification?.data);
-      console.log('Notification tapped in background!');
+
     }
   });
   

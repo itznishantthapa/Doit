@@ -38,7 +38,7 @@ export function useNotificationEngine() {
       // 1. Foreground FCM Listener
       activeUnsubscribers.push(
         onMessage(messaging, async (remoteMessage) => {
-            console.log("⚡ Push notification received silently in foreground!");
+
 
             queryClient.invalidateQueries({ queryKey: USER_NOTIFICATIONS_QUERY_KEY });
 
@@ -58,7 +58,6 @@ export function useNotificationEngine() {
       activeUnsubscribers.push(
         notifee.onForegroundEvent(({ type, detail }) => {
           if (type === EventType.PRESS) {
-            console.log('User tapped foreground notice:', detail.notification?.data);
             // Handle your App Navigation Service logic routing here cleanly
           }
         })
