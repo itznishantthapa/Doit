@@ -14,6 +14,8 @@ export const PROGRESS_STEP_IDS = {
   COMPLETED: 'completed',
 };
 
+export const MAX_CHANGES_REQUESTS = 2;
+
 export const PROGRESS_STEPS = [
   {
     id: PROGRESS_STEP_IDS.PROVIDED,
@@ -68,7 +70,7 @@ export const STEP_STATUS_COPY = {
   },
   [PROGRESS_STEP_IDS.COMPLETED]: {
     pending: 'Please click download button after helper finished your assignment',
-    completed: 'Please contact with helper if any changes is required.',
+    completed: 'Please click changes button if any changes is required.',
     rejected: 'Somehow unable to deliver the assignment.',
   },
 };

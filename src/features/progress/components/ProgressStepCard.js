@@ -19,9 +19,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import {
   Cancel01Icon,
+  CardExchange01Icon,
   Copy01Icon,
   InformationCircleIcon,
 } from '@hugeicons/core-free-icons';
+import { useNavigation } from '@react-navigation/native';
 import LoaderKitView from 'react-native-loader-kit';
 import * as ImagePicker from 'expo-image-picker';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -29,7 +31,7 @@ import CoolButton from '../../../components/button/CoolButton';
 import { useSubmitPayment } from '../../../hooks/query/mutation/useSubmitPayment';
 import useDownloadAssignment from '../../../hooks/custom/useDownloadAssignment';
 import { BORDER, GHOSTWHITE, TEXT_DARK, TEXT_MUTED, WHITE } from '../../../constants/colors';
-import { PROGRESS_STEP_IDS } from '../data/uiData';
+import { PROGRESS_STEP_IDS, MAX_CHANGES_REQUESTS } from '../data/uiData';
 
 const REJECTED = { bg: '#FEE2E2', accent: '#DC2626' };
 const PAYMENT_GREEN = '#27d935';
@@ -88,6 +90,7 @@ const PaymentReceiptModal = ({ visible, imageUri, onClose }) => (
 );
 
 const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
+  const navigation = useNavigation();
   const [receiptVisible, setReceiptVisible] = useState(false);
   const [pricingSheetOpen, setPricingSheetOpen] = useState(false);
   const [paymentSheetOpen, setPaymentSheetOpen] = useState(false);
@@ -167,6 +170,18 @@ const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
   const showPaymentLoader = isPaymentVerifying;
   const isDownloadEnabled =
     isCompleted && step.is_active && step.status === 'completed' && !!step.completed_file_url;
+  const changesRequestCount = step.changes_request_count ?? 0;
+  const remainingChangesRequests = MAX_CHANGES_REQUESTS - changesRequestCount;
+  const isCompletedActive =
+    isCompleted && step.is_active && step.status === 'completed';
+  const showChangesRequestButton = isCompletedActive && remainingChangesRequests > 0;
+  const showChangesRequestLimit =
+    isCompletedActive && changesRequestCount >= MAX_CHANGES_REQUESTS;
+  const showChangesRequestAction = showChangesRequestButton || showChangesRequestLimit;
+
+  const openChangesRequest = useCallback(() => {
+    navigation.navigate('ChangesRequest', { assignmentId, remainingChangesRequests });
+  }, [assignmentId, navigation, remainingChangesRequests]);
 
   const { download: downloadAssignment, isDownloading, isDownloaded } = useDownloadAssignment({
     fileUrl: step.completed_file_url,
@@ -245,7 +260,24 @@ const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
 
   const content = (
     <>
-      <View style={styles.topRow}>
+      {showChangesRequestButton ? (
+        <Pressable
+          onPress={openChangesRequest}
+          hitSlop={8}
+          style={({ pressed }) => [
+            styles.changesRequestIconButton,
+            pressed && styles.pressed,
+          ]}
+        >
+          <HugeiconsIcon icon={CardExchange01Icon} size={18} color={WHITE} strokeWidth={1.5} />
+        </Pressable>
+      ) : showChangesRequestLimit ? (
+        <Text style={styles.changesRequestLimitText}>
+          {MAX_CHANGES_REQUESTS}/{MAX_CHANGES_REQUESTS}
+        </Text>
+      ) : null}
+
+      <View style={[styles.topRow, showChangesRequestAction && styles.topRowWithAction]}>
         <View style={[styles.iconBox, { backgroundColor: step.is_active ? `${accent}22` : BORDER }]}>
           {showDoingStepLoader ? (
             <LoaderKitView
@@ -659,6 +691,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
+    position: 'relative',
   },
   cardDisabled: {
     opacity: 0.9,
@@ -669,6 +702,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 8,
+  },
+  topRowWithAction: {
+    paddingRight: 36,
   },
   iconBox: {
     width: 30,
@@ -756,6 +792,27 @@ const styles = StyleSheet.create({
     backgroundColor: TEXT_DARK,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  changesRequestIconButton: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: TEXT_DARK,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  changesRequestLimitText: {
+    position: 'absolute',
+    top: 20,
+    right: 14,
+    fontFamily: 'Jakarta-Regular',
+    fontSize: 12,
+    color: TEXT_MUTED,
+    zIndex: 1,
   },
   downloadButton: {
     marginTop: 14,

@@ -29,3 +29,11 @@ export const apiUnsubmitAssignment = async (assignmentId) => {
   });
   return data;
 };
+
+export const apiChangesRequest = async ({ assignmentId, description }) => {
+  const { data } = await API_CLIENT.post(endpoints.changes_request, {
+    assignment_id: assignmentId,
+    changes_request_description: description,
+  });
+  return data;
+};

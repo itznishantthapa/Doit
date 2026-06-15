@@ -6,6 +6,7 @@ import Progress from "../../features/progress/screen/Progress"
 import Completed from "../../features/completed/screen/Completed"
 import All from "../../features/all/screen/All"
 import Notification from "../../features/notification/screen/Notification"
+import ChangesRequest from "../../features/progress/screen/ChangesRequest"
 
 
 
@@ -20,6 +21,7 @@ const UserNavigator = () => {
                 <Stack.Screen name='Upload' component={Upload} />
                 <Stack.Screen name='Pending' component={Pending} />
                 <Stack.Screen name='Progress' component={Progress} />
+                <Stack.Screen name='ChangesRequest' component={ChangesRequest} />
                 <Stack.Screen name='Completed' component={Completed} />
                 <Stack.Screen name='All' component={All} />
                 <Stack.Screen name='Notification' component={Notification} />
