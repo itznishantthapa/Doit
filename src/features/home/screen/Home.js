@@ -121,17 +121,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // notificationDot: {
-  //   position: 'absolute',
-  //   top: 8,
-  //   right: 10,
-  //   width: 10,
-  //   height: 10,
-  //   borderRadius: 4,
-  //   backgroundColor: '#FF3B30',
-  //   borderWidth: 1.5,
-  //   borderColor: '#ffffff',
-  // },
+ 
   pressed: {
     opacity: 0.7,
   },

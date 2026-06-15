@@ -32,6 +32,8 @@ import { BORDER, GHOSTWHITE, TEXT_DARK, TEXT_MUTED, WHITE } from '../../../const
 import { PROGRESS_STEP_IDS } from '../data/uiData';
 
 const REJECTED = { bg: '#FEE2E2', accent: '#DC2626' };
+const PAYMENT_GREEN = '#27d935';
+const PAYMENT_BG = '#EAF8EB';
 
 const PRICING_SECTIONS = [
   {
@@ -231,12 +233,15 @@ const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
     step.is_max_submit_reached,
     submitPayment,
   ]);
-  const accent = isRejected ? REJECTED.accent : step.accentColor;
+  const isPaymentActive = isPayment && step.is_active && !isRejected;
+  const accent = isRejected ? REJECTED.accent : isPaymentActive ? PAYMENT_GREEN : step.accentColor;
   const backgroundColor = isRejected
     ? REJECTED.bg
-    : step.is_active
-      ? step.activeBackground
-      : step.inactiveBackground;
+    : isPaymentActive
+      ? PAYMENT_BG
+      : step.is_active
+        ? step.activeBackground
+        : step.inactiveBackground;
 
   const content = (
     <>
@@ -254,7 +259,7 @@ const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
               style={styles.doingLoader}
               name="BallClipRotateMultiple"
               animationSpeedMultiplier={1.0}
-              color={step.accentColor}
+              color={accent}
             />
           ) : (
             <HugeiconsIcon
@@ -287,42 +292,81 @@ const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
             <View style={styles.paymentActionRow}>
               {isRejected ? (
                 <Text style={[styles.paymentTag, { color: REJECTED.accent }]}># REJECTED</Text>
-              ) : isPaid ? (
-                <Text style={styles.paymentTag}># PAID</Text>
-              ) : isPaymentVerifying && step.is_max_submit_reached ? (
-                <Text style={[styles.paymentTag, { color: accent }]}># VERIFYING</Text>
               ) : null}
 
               {showPaymentDue ? (
-                <View style={styles.paymentActionButton}>
-                  <Text style={styles.paymentActionButtonText}>{step.price}</Text>
+                <View
+                  style={[
+                    styles.paymentActionButton,
+                    isPaymentActive && styles.paymentActionButtonOnGreen,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.paymentActionButtonText,
+                      isPaymentActive && styles.paymentActionButtonTextOnGreen,
+                    ]}
+                  >
+                    {step.price}
+                  </Text>
                 </View>
               ) : null}
 
               {isPaymentVerifying && !step.is_max_submit_reached ? (
                 <Pressable
                   onPress={openPaymentSheet}
-                  style={({ pressed }) => [styles.paymentActionButton, pressed && styles.pressed]}
+                  style={({ pressed }) => [
+                    styles.paymentActionButton,
+                    isPaymentActive && styles.paymentActionButtonOnGreen,
+                    pressed && styles.pressed,
+                  ]}
                 >
-                  <Text style={styles.paymentActionButtonText}>Resubmit</Text>
+                  <Text
+                    style={[
+                      styles.paymentActionButtonText,
+                      isPaymentActive && styles.paymentActionButtonTextOnGreen,
+                    ]}
+                  >
+                    Resubmit
+                  </Text>
                 </Pressable>
               ) : null}
 
               {showPaymentReceipt ? (
                 <Pressable
                   onPress={() => setReceiptVisible(true)}
-                  style={({ pressed }) => [styles.paymentActionButton, pressed && styles.pressed]}
+                  style={({ pressed }) => [
+                    styles.paymentActionButton,
+                    isPaymentActive && styles.paymentActionButtonOnGreen,
+                    pressed && styles.pressed,
+                  ]}
                 >
-                  <Text style={styles.paymentActionButtonText}>View Details</Text>
+                  <Text
+                    style={[
+                      styles.paymentActionButtonText,
+                      isPaymentActive && styles.paymentActionButtonTextOnGreen,
+                    ]}
+                  >
+                    View Details
+                  </Text>
                 </Pressable>
               ) : null}
             </View>
           </View>
           <Pressable
             onPress={openPricingSheet}
-            style={({ pressed }) => [styles.infoButton, pressed && styles.pressed]}
+            style={({ pressed }) => [
+              styles.infoButton,
+              isPaymentActive && styles.paymentInfoButtonOnGreen,
+              pressed && styles.pressed,
+            ]}
           >
-            <HugeiconsIcon icon={InformationCircleIcon} size={16} color={WHITE} strokeWidth={1.5} />
+            <HugeiconsIcon
+              icon={InformationCircleIcon}
+              size={16}
+              color={isPaymentActive ? PAYMENT_GREEN : WHITE}
+              strokeWidth={1.5}
+            />
           </Pressable>
         </View>
       ) : null}
@@ -656,6 +700,9 @@ const styles = StyleSheet.create({
     color: TEXT_MUTED,
   },
   descriptionRejected: { color: '#991B1B' },
+  paymentActionButtonOnGreen: { backgroundColor: WHITE },
+  paymentActionButtonTextOnGreen: { color: PAYMENT_GREEN },
+  paymentInfoButtonOnGreen: { backgroundColor: WHITE },
   paymentFooter: {
     flexDirection: 'row',
     alignItems: 'center',

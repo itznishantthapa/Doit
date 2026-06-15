@@ -22,3 +22,10 @@ export const apiSubmitPayment = async ({ assignmentId, operationType, screenshot
   await new Promise((resolve) => setTimeout(resolve, 2000));
   return data;
 };
+
+export const apiUnsubmitAssignment = async (assignmentId) => {
+  const { data } = await API_CLIENT.post(endpoints.unsubmit_assignment, {
+    assignment_id: assignmentId,
+  });
+  return data;
+};

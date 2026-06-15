@@ -22,6 +22,7 @@ export const endpoints = {
     create_assignment: "/api/assignment/create-assignment/",
     get_infinite_assignments: "/api/assignment/get-infinite-assignments/",
     get_assignment_progress: "/api/assignmentprogress/get-assignment-progress/",
+    unsubmit_assignment: "/api/assignment/unsubmit-assignment/",
 
     //notifications
     get_user_notifications: "/api/notification/get-user-notifications/",

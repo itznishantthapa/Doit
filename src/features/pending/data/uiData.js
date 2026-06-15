@@ -9,6 +9,7 @@ import {
 
 export const ASSIGNMENT_STATUSES = {
   IN_REVIEW: 'in_review',
+  UNSUBMITTED: 'unsubmitted',
   REJECTED: 'rejected',
   PAYMENT_PENDING: 'payment_pending',
   PAYMENT_REJECTED: 'payment_rejected',

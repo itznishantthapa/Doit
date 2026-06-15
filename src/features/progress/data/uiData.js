@@ -4,7 +4,7 @@ import {
   Loading03Icon,
   MoneyReceiveSquareIcon,
 } from '@hugeicons/core-free-icons';
-import { GHOSTWHITE, LAVENDER, MINT, PEACH, TEXT_DARK } from '../../../constants/colors';
+import { GHOSTWHITE, LAVENDER, PEACH, TEXT_DARK } from '../../../constants/colors';
 import { ASSIGNMENT_TYPES } from '../../pending/data/uiData';
 
 export const PROGRESS_STEP_IDS = {
@@ -26,9 +26,9 @@ export const PROGRESS_STEPS = [
   {
     id: PROGRESS_STEP_IDS.PAYMENT,
     title: 'Payment',
-    activeBackground: MINT,
+    activeBackground: '#EAF8EB',
     inactiveBackground: '#F5F6F8',
-    accentColor: '#2F6B52',
+    accentColor: '#27d935',
     icon: MoneyReceiveSquareIcon,
   },
   {
@@ -74,6 +74,17 @@ export const STEP_STATUS_COPY = {
 };
 
 export const getAssignmentTypeLabel = (type) => ASSIGNMENT_TYPES[type] ?? type;
+
+const WORK_TYPE_LABELS = {
+  individual: 'Individual',
+  group: 'Group',
+};
+
+export const getWorkTypeLabel = (workType) => {
+  if (!workType) return null;
+  const normalized = String(workType).toLowerCase();
+  return WORK_TYPE_LABELS[normalized] ?? workType;
+};
 
 export const formatDeliveryDate = (dateString) => {
   if (!dateString) return '—';
