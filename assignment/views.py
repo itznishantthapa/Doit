@@ -7,9 +7,12 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 
+from assignmentprogress.models import AssignmentProgress
 from .models import Assignment, AssignmentFile
 
 logger = logging.getLogger(__name__)
+
+MAX_CHANGES_REQUESTS = 2
 
 
 def format_delivery_date(value):
@@ -146,5 +149,108 @@ def get_infinite_assignments(request):
         logger.exception('Unexpected system failure while fetching paginated infinite assignments list')
         return Response(
             {'message': 'Could not retrieve assignments payload at this time.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def unsubmit_assignment(request):
+    try:
+        assignment_id = request.data.get('assignment_id')
+        if not assignment_id:
+            return Response(
+                {'message': 'assignment_id is required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            assignment = Assignment.objects.get(id=assignment_id, user=request.user)
+        except Assignment.DoesNotExist:
+            return Response(
+                {'message': 'Assignment not found.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if assignment.status == 'in_review':
+            assignment.status = 'unsubmitted'
+            message = 'Assignment unsubmitted successfully.'
+        elif assignment.status == 'unsubmitted':
+            assignment.status = 'in_review'
+            message = 'Assignment submitted successfully.'
+        else:
+            return Response(
+                {'message': f'You cannot toggle submission, it is already in {assignment.status}.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        assignment.save(update_fields=['status', 'updated_at'])
+
+        return Response({'message': message}, status=status.HTTP_200_OK)
+
+    except Exception:
+        logger.exception('Unexpected error during assignment submission toggle')
+        return Response(
+            {'message': 'Could not update assignment submission status.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def changes_request(request):
+    try:
+        assignment_id = request.data.get('assignment_id')
+        description = request.data.get('changes_request_description')
+
+        if not assignment_id or not description:
+            return Response(
+                {'message': 'assignment_id and changes_request_description are required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            assignment = Assignment.objects.get(id=assignment_id, user=request.user)
+        except Assignment.DoesNotExist:
+            return Response(
+                {'message': 'Assignment not found.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if assignment.changes_request_count >= MAX_CHANGES_REQUESTS:
+            return Response(
+                {'message': 'Maximum changes request limit reached.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        with transaction.atomic():
+            progress, _ = AssignmentProgress.objects.get_or_create(assignment=assignment)
+
+            assignment.changes_request_description = description
+            assignment.changes_request_count += 1
+            assignment.save(update_fields=[
+                'changes_request_description',
+                'changes_request_count',
+                'updated_at',
+            ])
+
+            progress.doing_status = 'pending'
+            progress.completed_is_active = False
+            progress.completed_status = 'pending'
+            progress.save(update_fields=[
+                'doing_status',
+                'completed_is_active',
+                'completed_status',
+            ])
+
+        return Response(
+            {'message': 'Changes request submitted successfully.'},
+            status=status.HTTP_200_OK,
+        )
+
+    except Exception:
+        logger.exception('Unexpected error during changes request')
+        return Response(
+            {'message': 'Could not submit changes request.'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

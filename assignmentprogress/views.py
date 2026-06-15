@@ -1,4 +1,6 @@
 import logging
+
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -42,9 +44,11 @@ def get_assignment_progress(request):
         if progress.payment_details_image:
             payment_details_url = request.build_absolute_uri(progress.payment_details_image.url)
 
-        # 5. Format the tracking dates into your required display format ('08 Jun 2026')
+        # 5. Format the tracking dates into your required display format ('08 Jun 2026 12:00')
         def format_step_date(dt_field):
-            return dt_field.strftime('%d %b %Y') if dt_field else None
+            if not dt_field:
+                return None
+            return timezone.localtime(dt_field).strftime('%d %b %Y %H:%M')
 
         payment_step = {
             'payment_receipt_date': format_step_date(progress.payment_receipt_date),
@@ -55,6 +59,22 @@ def get_assignment_progress(request):
             'payment_details_image': payment_details_url,
             'is_max_submit_reached': progress.payment_attempt_count >= 3,
         }
+
+        completed_step = {
+            'date': format_step_date(progress.completed_date),
+            'is_active': progress.completed_is_active,
+            'status': progress.completed_status,
+        }
+
+        if (
+            progress.completed_is_active
+            and progress.completed_status == 'completed'
+            and assignment.completed_file
+        ):
+            completed_step['completed_file_url'] = request.build_absolute_uri(
+                assignment.completed_file.url
+            )
+            completed_step['changes_request_count'] = assignment.changes_request_count
 
         if progress.payment_is_active and progress.payment_status in ('pending', 'doing'):
             details = PaymentDetails.objects.order_by('-updated_at').first()
@@ -70,6 +90,8 @@ def get_assignment_progress(request):
             'id': str(assignment.id),
             'title': assignment.name,
             'assignment_type': assignment.assignment_type,
+            'work_type': assignment.work_type,
+            'status': assignment.status,
             'delivery_date': assignment.delivery_date.strftime('%Y-%m-%d') if assignment.delivery_date else None,
             'steps': {
                 'provided': {
@@ -83,11 +105,7 @@ def get_assignment_progress(request):
                     'is_active': progress.doing_is_active,
                     'status': progress.doing_status,
                 },
-                'completed': {
-                    'date': format_step_date(progress.completed_date),
-                    'is_active': progress.completed_is_active,
-                    'status': progress.completed_status,
-                }
+                'completed': completed_step,
             }
         }
 

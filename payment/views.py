@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 MAX_PAYMENT_ATTEMPTS = 3
 
 
-def mark_payment_doing(progress, screenshot=None):
+def mark_payment_doing(progress, screenshot_path=None):
     progress.payment_status = 'doing'
     progress.payment_receipt_date = timezone.now()
-    if screenshot:
-        progress.payment_screenshot = screenshot
+    if screenshot_path:
+        progress.payment_screenshot = screenshot_path
     progress.save()
 
 
@@ -52,27 +52,26 @@ def submit_payment(request):
             progress, _ = AssignmentProgress.objects.get_or_create(assignment=assignment)
             pay_amount = progress.price or 0
 
-            if operation_type == 'post':
-                if progress.payment_attempt_count >= MAX_PAYMENT_ATTEMPTS:
-                    return Response(
-                        {'message': f'Reached limit'},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
+            if progress.payment_attempt_count >= MAX_PAYMENT_ATTEMPTS:
+                return Response(
+                    {'message': 'Reached limit'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
+            if operation_type == 'post':
                 if not payment_ss:
                     return Response(
                         {'message': 'Payment screenshot is required.'},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
-                AssignmentPayment.objects.create(
+                payment = AssignmentPayment.objects.create(
                     assignment=assignment,
                     user=request.user,
                     payment_ss=payment_ss,
                     pay_amount=pay_amount,
                 )
-                progress.payment_attempt_count += 1
-                mark_payment_doing(progress, payment_ss)
+                mark_payment_doing(progress, payment.payment_ss.name)
                 message = 'Payment submitted successfully.'
 
             else:
@@ -92,9 +91,14 @@ def submit_payment(request):
                     payment.pay_amount = pay_amount
                     payment.pay_at = timezone.now()
                     payment.save()
+                    mark_payment_doing(progress, payment.payment_ss.name)
+                else:
+                    mark_payment_doing(progress)
 
-                mark_payment_doing(progress, payment_ss)
                 message = 'Payment updated successfully.'
+
+            progress.payment_attempt_count += 1
+            progress.save(update_fields=['payment_attempt_count'])
 
         return Response({'message': message}, status=status.HTTP_200_OK)
 

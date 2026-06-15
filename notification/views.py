@@ -1,4 +1,6 @@
 import logging
+
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -33,7 +35,8 @@ def get_user_notifications(request):
                 'assignment_id': notification.assignment_id, # Returns as a clean number/null
                 'is_read': notification.is_read,
                 # Returns a clean formatted string for the frontend UI (e.g., "12 Jun 2026 23:15")
-                'created_at': notification.created_at.strftime('%d %b %Y %H:%M') if notification.created_at else None
+                'created_at': timezone.localtime(notification.created_at).strftime('%d %b %Y %H:%M')
+                    if notification.created_at else None,
             })
 
         return Response({

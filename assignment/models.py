@@ -20,9 +20,10 @@ class Assignment(models.Model):
         ('payment_rejected', 'Payment Rejected'),
         ('doing', 'Doing'),
         ('completed', 'Completed'),
+        ('unsubmitted', 'Unsubmitted'),
     )
 
-    PENDING_STATUSES = ('in_review', 'payment_pending', 'doing')
+    PENDING_STATUSES = ('in_review', 'payment_pending', 'doing','unsubmitted')
     COMPLETED_STATUS = 'completed'
 
     # Core relationship (Links assignment to the user who uploaded it)
@@ -44,6 +45,18 @@ class Assignment(models.Model):
     # Financial & State tracking metrics
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='in_review')
     is_paid = models.BooleanField(default=False)
+
+    # changes request
+    changes_request_description = models.TextField(blank=True, null=True)
+    changes_request_count = models.IntegerField(default=0)
+    changes_request_resolved_count = models.IntegerField(default=0)
+
+    completed_file = models.FileField(
+        upload_to='assignments/completed_solutions/', 
+        blank=True, 
+        null=True,
+        help_text="The final completed solution file uploaded by the assignment helper"
+    )
     
     # System timestamps
     provided_at = models.DateTimeField(auto_now_add=True)  # Assignment creation timestamp
