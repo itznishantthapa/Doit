@@ -39,7 +39,7 @@ export function useNotificationEngine() {
       activeUnsubscribers.push(
         onMessage(messaging, async (remoteMessage) => {
 
-
+            console.log("remoteMessaged Received")
             queryClient.invalidateQueries({ queryKey: USER_NOTIFICATIONS_QUERY_KEY });
 
             //only use this when you want to display a notification in the foreground
