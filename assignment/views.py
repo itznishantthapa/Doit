@@ -3,10 +3,10 @@ import logging
 from django.db import transaction
 from django.utils.dateparse import parse_date
 from rest_framework import status
-from rest_framework.decorators import api_view, parser_classes
+from rest_framework.decorators import api_view, parser_classes, permission_classes
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
-
+from rest_framework.permissions import IsAuthenticated
 from assignmentprogress.models import AssignmentProgress
 from .models import Assignment, AssignmentFile
 
@@ -25,6 +25,7 @@ def format_delivery_date(value):
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser, JSONParser])
+@permission_classes([IsAuthenticated])
 def create_assignment(request):
     try:
         # 1. Extract structural text data parameters
@@ -91,6 +92,7 @@ def create_assignment(request):
 
 @api_view(['GET'])
 @parser_classes([JSONParser])
+@permission_classes([IsAuthenticated])
 def get_infinite_assignments(request):
     try:
         status_filter = request.GET.get('status', 'all')
@@ -155,6 +157,7 @@ def get_infinite_assignments(request):
 
 @api_view(['POST'])
 @parser_classes([JSONParser])
+@permission_classes([IsAuthenticated])
 def unsubmit_assignment(request):
     try:
         assignment_id = request.data.get('assignment_id')
@@ -198,6 +201,7 @@ def unsubmit_assignment(request):
 
 @api_view(['POST'])
 @parser_classes([JSONParser])
+@permission_classes([IsAuthenticated])
 def changes_request(request):
     try:
         assignment_id = request.data.get('assignment_id')

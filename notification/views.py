@@ -11,6 +11,7 @@ from .models import UserNotification
 logger = logging.getLogger(__name__)
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def get_user_notifications(request):
 
     try:
@@ -55,6 +56,7 @@ def get_user_notifications(request):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def save_notification_token(request):
     """
     Save or update the Firebase Cloud Messaging (FCM) registration token
