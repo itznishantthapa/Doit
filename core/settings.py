@@ -15,6 +15,9 @@ import os
 from pathlib import Path
 import environ  # Import django-environ by Thapa
 
+from core.unfold import UNFOLD
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,6 +46,8 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 INSTALLED_APPS = [
     'user',
+    "unfold",  # <-- Must be at the very top of the list
+    "unfold.contrib.filters",  # Optional: Adds Tailwind-styled sidebar filters
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -160,3 +165,4 @@ MEDIA_URL = '/media/'
 
 # The absolute filesystem path to the directory where uploaded files are saved
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
