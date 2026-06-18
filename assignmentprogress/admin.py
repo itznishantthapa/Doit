@@ -25,6 +25,7 @@ class AssignmentProgressAdmin(ModelAdmin):
     list_filter_submit = True
     search_fields = ("assignment__name", "assignment__user__username")
     raw_id_fields = ("assignment",)
+    readonly_fields = ("provided_date",)
     fieldsets = (
         ("Assignment", {"fields": ("assignment", "price")}),
         (

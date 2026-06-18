@@ -1,2 +1,5 @@
 .venv/
 .env
+*firebase*.json
+*firebase-adminsdk*.json
+doit-*.json

@@ -19,6 +19,8 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 
+from core.views import test_topic_broadcast
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('user.urls')),
@@ -29,6 +31,7 @@ urlpatterns = [
     path('api/assignmentprogress/', include('assignmentprogress.urls')),
     path('api/notification/', include('notification.urls')),
     path('api/payment/', include('payment.urls')),
+    path('api/test-broadcast/', test_topic_broadcast, name='test_broadcast'),
 ]
 
 if settings.DEBUG:
