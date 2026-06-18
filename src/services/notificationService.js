@@ -7,8 +7,11 @@ import {
   getToken,
   registerDeviceForRemoteMessages,
   requestPermission,
+  subscribeToTopic,
+  unsubscribeFromTopic,
 } from '@react-native-firebase/messaging';
-import notifee, { AndroidImportance, AndroidStyle, EventType } from '@notifee/react-native';
+import notifee, { AndroidImportance, AndroidStyle } from '@notifee/react-native';
+import { FCM_BROADCAST_TOPIC } from '../constants/notifications';
 
 export const requestNotificationPermission = async () => {
   try {
@@ -61,14 +64,43 @@ export const setupNotificationChannel = async () => {
   });
 };
 
+export const subscribeToBroadcastTopic = async (topic = FCM_BROADCAST_TOPIC) => {
+  try {
+    await subscribeToTopic(getMessaging(getApp()), topic);
+    return true;
+  } catch (error) {
+    if (__DEV__) console.error('Topic subscription error:', error);
+    return false;
+  }
+};
+
+export const unsubscribeFromBroadcastTopic = async (topic = FCM_BROADCAST_TOPIC) => {
+  try {
+    await unsubscribeFromTopic(getMessaging(getApp()), topic);
+    return true;
+  } catch (error) {
+    if (__DEV__) console.error('Topic unsubscription error:', error);
+    return false;
+  }
+};
+
 export const displayNotification = async (remoteMessage) => {
-  if (!remoteMessage?.data) return;
-  const { title, body, bigImage, importance, ...restData } = remoteMessage.data;
+  const data = remoteMessage?.data ?? {};
+  const notification = remoteMessage?.notification ?? {};
+  const title = data.title || notification.title;
+  const body = data.body || notification.body;
+  const bigImage =
+    data.bigImage ||
+    data.banner_url ||
+    notification.image ||
+    notification.android?.imageUrl;
+
+  if (!title && !body) return;
 
   await notifee.displayNotification({
     title: title || 'New Update',
     body: body || '',
-    data: remoteMessage.data,
+    data: remoteMessage.data ?? {},
     android: {
       channelId: 'high_importance',
       smallIcon: 'ic_notification', // Ensure this exists natively in android/app/src/main/res/drawable

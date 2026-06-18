@@ -10,6 +10,7 @@ import {
 } from '../api/api';
 import { Keyboard } from 'react-native';
 import { registerAuthHandlers } from '../../../services/authBridge';
+import { unsubscribeFromBroadcastTopic } from '../../../services/notificationService';
 
 export const useAuthStore = create((set, get) => ({
   user: undefined, // undefined = loading, null = logged out, object = logged in
@@ -81,6 +82,7 @@ export const useAuthStore = create((set, get) => ({
   },
 
   logout: async () => {
+    await unsubscribeFromBroadcastTopic();
     await clearStoredAuthData();
     set({
       user: null,

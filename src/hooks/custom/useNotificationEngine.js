@@ -6,11 +6,11 @@ import notifee, { EventType } from '@notifee/react-native';
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
 import { queryClient } from '../../services/queryClient';
 import { USER_NOTIFICATIONS_QUERY_KEY } from '../query/query/useUserNotification';
-import { 
-  requestNotificationPermission, 
-  getFCMToken, 
-  setupNotificationChannel, 
-  displayNotification 
+import {
+  requestNotificationPermission,
+  getFCMToken,
+  setupNotificationChannel,
+  subscribeToBroadcastTopic,
 } from '../../services/notificationService';
 
 export function useNotificationEngine() {
@@ -35,11 +35,14 @@ export function useNotificationEngine() {
         await useAuthStore.getState().syncPushToken(token);
       }
 
+      await subscribeToBroadcastTopic();
+      console.log("subscribed to broadcast topic");
+
       // 1. Foreground FCM Listener
       activeUnsubscribers.push(
         onMessage(messaging, async (remoteMessage) => {
 
-            console.log("remoteMessaged Received")
+            console.log("RemoteMessaged Received")
             queryClient.invalidateQueries({ queryKey: USER_NOTIFICATIONS_QUERY_KEY });
 
             //only use this when you want to display a notification in the foreground
