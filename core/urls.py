@@ -34,6 +34,8 @@ urlpatterns = [
     path('api/test-broadcast/', test_topic_broadcast, name='test_broadcast'),
 ]
 
-if settings.DEBUG:
-    # Redundant with re_path above in DEBUG but keeps conventional pattern usage
+
+
+#Only serves files locally if USE_SPACES=False or DEBUG=True
+if settings.DEBUG or not settings.USE_SPACES:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

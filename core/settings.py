@@ -140,10 +140,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'user.User'
 
@@ -160,11 +157,60 @@ SIMPLE_JWT = {
     }
 
 
-# The URL prefix used to serve media files over HTTP
-MEDIA_URL = '/media/'
 
-# The absolute filesystem path to the directory where uploaded files are saved
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+
+# ==============================================================================
+# STATIC & USER UPLOADED MEDIA STORAGE CONFIGURATION (DigitalOcean Spaces Integration)
+# ==============================================================================
+
+# 1. Collected Static Files (Always served locally via WhiteNoise inside Docker)
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# 2. DigitalOcean Spaces Toggle Switch Engine
+# Checks for DO keys inside your mounted .env file to dynamically route media storage
+USE_SPACES = env.bool('USE_SPACES', default=bool(env('DO_SPACES_KEY', default='') and env('DO_SPACES_SECRET', default='')))
+
+if USE_SPACES:
+    # Authenticated credentials parsed directly out of your .env file
+    AWS_ACCESS_KEY_ID = env('DO_SPACES_KEY')
+    AWS_SECRET_ACCESS_KEY = env('DO_SPACES_SECRET')
+    AWS_STORAGE_BUCKET_NAME = env('DO_SPACES_BUCKET', default='level-esport-matchmaking-bucket')
+    
+    # Regional and endpoint mapping coordinates
+    AWS_S3_REGION_NAME = env('DO_SPACES_REGION', default='blr1')
+    AWS_S3_ENDPOINT_URL = f"https://{AWS_S3_REGION_NAME}.digitaloceanspaces.com"
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_REGION_NAME}.cdn.digitaloceanspaces.com"
+    
+    # CRITICAL: Keep files separated from your previous project using a clean subfolder prefix!
+    AWS_LOCATION = 'doit-prod'
+
+    # Objects are private by default on DO Spaces; allow direct CDN/browser access.
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_QUERYSTRING_AUTH = False
+
+    # Modernized Django Unified Storage Engine Backend Routing (Django 4.2+)
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage", # Handled via Nginx/Docker
+        },
+    }
+    
+    # Target absolute absolute URI root path configuration
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
+
+else:
+    # Minimal Local Fallback Storage Engine (Ideal for local testing/development)
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
 
 # Firebase Admin SDK (credentials loaded from .env)
 FIREBASE_PROJECT_ID = env('FIREBASE_PROJECT_ID')
