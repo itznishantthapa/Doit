@@ -4,6 +4,8 @@ services:
     env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432" 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -11,13 +13,15 @@ services:
       retries: 5
 
   web:
-    build: .
+    image: backonedevs/doit:latest
+    platform: linux/amd64
     command: >
-      sh -c "python manage.py migrate --noinput &&
-             python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py migrate --noinput &&
+             gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3"
     env_file: .env
     ports:
-      - "8000:8000"
+      - "8001:8000" 
     volumes:
       - .:/app
       - media:/app/media
@@ -25,6 +29,7 @@ services:
       db:
         condition: service_healthy
 
-volumes:
+
+volumes:       
   postgres_data:
   media:
