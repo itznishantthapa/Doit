@@ -9,6 +9,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -16,6 +17,7 @@ import { HugeiconsIcon } from '@hugeicons/react-native';
 import { EyeIcon, ViewOffIcon } from '@hugeicons/core-free-icons';
 import { MyWrapper } from '../../../components/wrapper/MyWrapper';
 import { TEXT_DARK, TEXT_MUTED, WHITE } from '../../../constants/colors';
+import { POLICY_URL, TERMS_URL } from '../../../constants/legalUrls';
 import CoolButton from '../../../components/button/CoolButton';
 import Toast from 'react-native-simple-toast';
 import Animated, { FadeIn, FadeOut, FadeInDown, FadeOutUp } from 'react-native-reanimated';
@@ -72,6 +74,7 @@ const INVALID_CREDENTIALS_MESSAGE = 'Invalid username or password';
 const USERNAME_TAKEN_MESSAGE = 'Username is already taken.';
 
 const Authentication = () => {
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { isVisible } = useKeyboardState();
   const { login, create } = useAuthStore();
@@ -390,6 +393,36 @@ const Authentication = () => {
               buttonTitle={isSignUp ? 'Sign Up' : 'Log In'}
               loader={isSubmitting}
             />
+
+            {isSignUp ? (
+              <Text style={styles.legalText}>
+                By signing up, you agree to our{' '}
+                <Text
+                  style={styles.legalLink}
+                  onPress={() =>
+                    navigation.navigate('LegalWebView', {
+                      title: 'Terms of Service',
+                      url: TERMS_URL,
+                    })
+                  }
+                >
+                  Terms of Service
+                </Text>
+                {' '}and{' '}
+                <Text
+                  style={styles.legalLink}
+                  onPress={() =>
+                    navigation.navigate('LegalWebView', {
+                      title: 'Privacy Policy',
+                      url: POLICY_URL,
+                    })
+                  }
+                >
+                  Privacy Policy
+                </Text>
+                .
+              </Text>
+            ) : null}
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -514,6 +547,19 @@ const styles = StyleSheet.create({
   switchLink: {
     fontFamily: 'Jakarta-SemiBold',
     color: TEXT_DARK,
+  },
+  legalText: {
+    marginTop: 16,
+    fontFamily: 'Jakarta-Regular',
+    fontSize: 12,
+    color: TEXT_MUTED,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  legalLink: {
+    fontFamily: 'Jakarta-SemiBold',
+    color: TEXT_DARK,
+    textDecorationLine: 'underline',
   },
 });
 

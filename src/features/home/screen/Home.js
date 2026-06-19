@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HugeiconsIcon } from '@hugeicons/react-native';
-import { Notification01Icon, NotificationOff01Icon } from '@hugeicons/core-free-icons';
+import { Notification01Icon, NotificationOff01Icon, Menu01Icon } from '@hugeicons/core-free-icons';
 import { MyWrapper } from '../../../components/wrapper/MyWrapper';
 import { TEXT_DARK } from '../../../constants/colors';
 import HomeBanner from '../components/HomeBanner';
@@ -46,19 +46,33 @@ const Home = () => {
       >
         <View style={styles.header}>
           <Text style={styles.greeting}>Hi {user?.username},</Text>
-          <Pressable
-            style={({ pressed }) => [styles.notificationButton, pressed && styles.pressed]}
-            hitSlop={8}
-            onPress={() => navigation.navigate('Notification')}
-          >
-            <HugeiconsIcon
-              icon={user?.is_notification_subscribed? Notification01Icon : NotificationOff01Icon}
-              size={24}
-              color={TEXT_DARK}
-              strokeWidth={1.5}
-            />
-            {/* {hasUnread ? <View style={styles.notificationDot} /> : null} */}
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
+              hitSlop={8}
+              onPress={() => navigation.navigate('Notification')}
+            >
+              <HugeiconsIcon
+                icon={user?.is_notification_subscribed ? Notification01Icon : NotificationOff01Icon}
+                size={24}
+                color={TEXT_DARK}
+                strokeWidth={1.5}
+              />
+              {/* {hasUnread ? <View style={styles.notificationDot} /> : null} */}
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.headerButton, pressed && styles.pressed]}
+              hitSlop={8}
+              onPress={() => navigation.navigate('Setting')}
+            >
+              <HugeiconsIcon
+                icon={Menu01Icon}
+                size={24}
+                color={TEXT_DARK}
+                strokeWidth={1.5}
+              />
+            </Pressable>
+          </View>
         </View>
 
         <HomeBanner data={banners} isLoading={isBannersLoading} />
@@ -99,15 +113,14 @@ const styles = StyleSheet.create({
   bottomContent: {
     flex: 1,
     justifyContent: 'flex-end',
-    // marginTop: 8,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     paddingTop: 8,
-    paddingBottom: 4,
+    paddingBottom: 10,
   },
   greeting: {
     fontFamily: 'Jakarta-SemiBold',
@@ -115,13 +128,15 @@ const styles = StyleSheet.create({
     color: TEXT_DARK,
     letterSpacing: -0.3,
   },
-  notificationButton: {
-    width: 40,
-    height: 40,
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
+  headerButton: {
     alignItems: 'center',
     justifyContent: 'center',
   },
- 
   pressed: {
     opacity: 0.7,
   },

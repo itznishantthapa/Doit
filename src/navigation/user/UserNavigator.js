@@ -6,6 +6,9 @@ import Progress from "../../features/progress/screen/Progress"
 import Completed from "../../features/completed/screen/Completed"
 import All from "../../features/all/screen/All"
 import Notification from "../../features/notification/screen/Notification"
+import Setting from "../../features/setting/screen/Setting"
+import LegalWebView from "../../features/setting/screen/LegalWebView"
+import Delete from "../../features/delete/screen/Delete"
 import ChangesRequest from "../../features/progress/screen/ChangesRequest"
 
 
@@ -25,6 +28,9 @@ const UserNavigator = () => {
                 <Stack.Screen name='Completed' component={Completed} />
                 <Stack.Screen name='All' component={All} />
                 <Stack.Screen name='Notification' component={Notification} />
+                <Stack.Screen name='Setting' component={Setting} />
+                <Stack.Screen name='LegalWebView' component={LegalWebView} />
+                <Stack.Screen name='Delete' component={Delete} />
 
             </Stack.Navigator>
         </>
