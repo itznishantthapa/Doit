@@ -38,7 +38,7 @@ const getRefreshedAccessToken = () => {
 
 
 export const API_CLIENT = axios.create({
-  baseURL: 'http://192.168.1.142:8000', // Update with your backend URL
+  baseURL: 'https://doit.level.com.np',  
   headers: { 'Content-Type': 'application/json' },
   timeout: 30000,
 });
