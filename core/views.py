@@ -1,10 +1,25 @@
 from django.conf import settings
 from django.http import HttpResponse
+from django.shortcuts import render
 from firebase_admin import messaging
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 
 from core.firebase import is_firebase_configured
+
+
+def privacy(request):
+    return render(request, 'privacy.html')
+
+
+def terms(request):
+    return render(request, 'terms.html')
+
+
+def support(request):
+    return render(request, 'support.html', {
+        'support_email': 'itsnishantu@gmail.com',
+    })
 
 
 @api_view(["GET"])

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Support | Doit Student Helper App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #ffffff;
+            color: #1f2937;
+            font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        main {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 56px 24px 80px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin: 0 0 12px;
+            color: #111827;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        section {
+            margin-bottom: 36px;
+        }
+
+        h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            line-height: 1.4;
+            margin: 0 0 16px;
+            color: #111827;
+        }
+
+        .faq-item {
+            margin-bottom: 28px;
+        }
+
+        .faq-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 8px;
+            color: #111827;
+        }
+
+        p {
+            margin: 0 0 16px;
+            color: #374151;
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-box {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 28px 24px;
+            background: #ffffff;
+        }
+
+        .contact-box > p {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #111827;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 12px 14px;
+            transition: border-color 0.15s ease;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #111827;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-note {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 0 0 20px;
+        }
+
+        button {
+            width: 100%;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: #111827;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        button:hover {
+            background: #374151;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header class="header">
+            <h1>Doit. Support</h1>
+            <p class="subtitle">Find answers to common questions or reach out for help.</p>
+        </header>
+
+        <section>
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <p class="faq-question">How to delete the account?</p>
+                <p>
+                    To delete your account, tap the menu icon in the top-right corner, open the Account Deletion section,
+                    and follow the steps to permanently remove your account.
+                </p>
+            </div>
+
+            <div class="faq-item">
+                <p class="faq-question">How to submit my work for review?</p>
+                <p>
+                    Open Assignment Help, tap Provide Your Work, upload your assignment papers or files, and select a date
+                    for the review process.
+                </p>
+            </div>
+
+            <div class="faq-item">
+                <p class="faq-question">Can I delete my submission?</p>
+                <p>
+                    No. Once you submit your work for review, you cannot edit or delete the submission. However, you can
+                    unsubmit it by tapping the Unsubmit button.
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <div class="contact-box">
+                <h2>Need More Help?</h2>
+                <p>
+                    Please email us your issue, and we'll try to resolve it within 24 hours.
+                </p>
+
+                <form id="support-form">
+                    <div class="field">
+                        <label for="name">Name</label>
+                        <input id="name" name="name" type="text" placeholder="Your name" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input id="email" name="email" type="email" placeholder="you@example.com" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" placeholder="Describe your issue…" required></textarea>
+                    </div>
+
+                    <p class="form-note">
+                        Submitting will open your email client with a pre-filled message to our support team.
+                    </p>
+
+                    <button type="submit">Send Email</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.getElementById('support-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+            const subject = encodeURIComponent('Doit Support Request from ' + name);
+            const body = encodeURIComponent(
+                'Name: ' + name + '\n' +
+                'Email: ' + email + '\n\n' +
+                'Message:\n' + message
+            );
+
+            window.location.href = 'mailto:{{ support_email }}?subject=' + subject + '&body=' + body;
+        });
+    </script>
+</body>
+</html>

@@ -19,10 +19,13 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from core.views import test_topic_broadcast
+from core.views import privacy, support, terms, test_topic_broadcast
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('privacy/', privacy, name='privacy'),
+    path('terms/', terms, name='terms'),
+    path('support/', support, name='support'),
     path('api/auth/', include('user.urls')),
     path('api/banner/', include('banner.urls')),
     path('api/social/', include('social.urls')),
