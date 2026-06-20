@@ -3,7 +3,8 @@ import logging
 from django.contrib.auth import authenticate
 from django.db import IntegrityError
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
@@ -169,4 +170,42 @@ def refresh_token(request):
         return Response(
             {"message": "Could not process token refresh."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def user_logout(request):
+    try:
+        user = request.user
+        user.notification_token = None
+        user.save(update_fields=['notification_token'])
+
+        return Response(
+            {'message': 'Logged out successfully.'},
+            status=status.HTTP_200_OK,
+        )
+    except Exception:
+        logger.exception('Unexpected error during logout')
+        return Response(
+            {'message': 'Could not log out.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def account_deletion(request):
+    try:
+        request.user.delete()
+
+        return Response(
+            {'message': 'Account deleted successfully.'},
+            status=status.HTTP_200_OK,
+        )
+    except Exception:
+        logger.exception('Unexpected error during account deletion')
+        return Response(
+            {'message': 'Could not delete account.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
