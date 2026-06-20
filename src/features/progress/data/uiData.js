@@ -58,7 +58,7 @@ export const STEP_STATUS_COPY = {
     rejected: "We're unable to assit you with this assignment.",
   },
   [PROGRESS_STEP_IDS.PAYMENT]: {
-    pending: 'Helper will send you payment details shortly. Tap the info button to learn about assignment price ranges.',
+    pending: 'Helper will send you payment details shortly. Tap the info button to learn about ce ranges.',
     doing: 'You have submitted payment for this assignment, please wait sometime helper will verify your payment.',
     rejected: 'Helper could not validate your payment. Please contact the helper.',
     completed: 'You have successfully paid for this assignment.',

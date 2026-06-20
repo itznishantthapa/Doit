@@ -439,9 +439,9 @@ const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
             ]}
           >
             <View style={styles.paymentSheetHeader}>
-              <Text style={styles.paymentSheetTitle}>Assignment Pricing</Text>
+              <Text style={styles.paymentSheetTitle}>Task Pricing</Text>
               <Text style={styles.paymentSheetSubtitle}>
-                Estimated guide based on assignment type, weightage, and task complexity.
+                Estimated guide based on task type, weightage, and task complexity.
               </Text>
             </View>
 

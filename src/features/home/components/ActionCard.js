@@ -14,7 +14,7 @@ const ACTION_CARDS = [
   {
     id: 'assignment-help',
     title: 'Assignment Help',
-    subtitle: 'Provide us your assignment',
+    subtitle: 'Submit your assignment for review',
     icon: AssignmentsIcon,
     backgroundColor: LAVENDER,
     screen: 'Upload',
@@ -22,7 +22,7 @@ const ACTION_CARDS = [
   {
     id: 'pending',
     title: 'Pending',
-    subtitle: 'Track your given assignments',
+    subtitle: 'Track your assignments.',
     icon: Clock01Icon,
     backgroundColor: MINT,
     screen: 'Pending',
@@ -30,7 +30,7 @@ const ACTION_CARDS = [
   {
     id: 'completed',
     title: 'Completed',
-    subtitle: 'View and download your assignments',
+    subtitle: 'Download reviewed assignments.',
     icon: TaskDone01Icon,
     backgroundColor: PEACH,
     screen: 'Completed',
@@ -38,7 +38,7 @@ const ACTION_CARDS = [
   {
     id: 'all',
     title: 'All',
-    subtitle: 'View all of your given assignments',
+    subtitle: 'View all assignments \nhistory.',
     icon: ListIndentIncreaseIcon,
     backgroundColor: GHOSTWHITE,
     screen: 'All',

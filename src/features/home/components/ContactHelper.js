@@ -63,7 +63,7 @@ const ContactHelper = ({ socials = [] }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Contact with helper</Text>
+      <Text style={styles.sectionTitle}>Socials & Support</Text>
       <View style={styles.row}>
         {visibleSocials.map((social) => {
           const name = social.social_name.toLowerCase();
