@@ -38,7 +38,8 @@ const getRefreshedAccessToken = () => {
 
 
 export const API_CLIENT = axios.create({
-  baseURL: 'https://doit.level.com.np',  
+  // baseURL: 'https://doit.level.com.np',  
+  baseURL: 'http://192.168.1.142:8000',  
   headers: { 'Content-Type': 'application/json' },
   timeout: 30000,
 });
@@ -77,7 +78,9 @@ API_CLIENT.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes(endpoints.refresh)
+      !originalRequest.url?.includes(endpoints.refresh) &&
+      !originalRequest.url?.includes(endpoints.logout) &&
+      !originalRequest.url?.includes(endpoints.delete_account)
     ) {
       originalRequest._retry = true;
 

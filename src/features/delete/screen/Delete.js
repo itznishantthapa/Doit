@@ -11,42 +11,38 @@ import { useAuthStore } from '../../auth/store/useAuthStore';
 const TEXT_SECONDARY = 'rgba(26, 26, 26, 0.55)';
 
 const Delete = () => {
-    const navigation = useNavigation();
-    const { user } = useAuthStore();
-    const [isDeleting, setIsDeleting] = useState(false);
+  const navigation = useNavigation();
+  const { user, deleteAccount } = useAuthStore();
+  const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleDeleteAccountPress = useCallback(() => {
-        if (isDeleting) return;
+  const handleDeleteAccountPress = useCallback(() => {
+    if (isDeleting) return;
 
-        Alert.alert(
-            '',
-            'Confirm Account Deletion',
-            [
-                {
-                    text: 'Cancel',
-                    style: 'cancel',
-                    onPress: () => console.log('Delete account cancelled'),
-                },
-                {
-                    text: 'Confirm',
-                    style: 'destructive',
-                    onPress: async () => {
-                        console.log('Delete account confirmed');
-                        setIsDeleting(true);
+    Alert.alert(
+      '',
+      'Confirm Account Deletion',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          style: 'destructive',
+          onPress: async () => {
+            setIsDeleting(true);
 
-                        try {
-                            // API integration placeholder
-                            //promise for 5 sec
-                            await new Promise(resolve => setTimeout(resolve, 5000));
-                        } finally {
-                            setIsDeleting(false);
-                        }
-                    },
-                },
-            ],
-            { cancelable: true },
-        );
-    }, [isDeleting]);
+            try {
+              await deleteAccount();
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  }, [deleteAccount, isDeleting]);
 
     return (
         <MyWrapper style={styles.screen}>

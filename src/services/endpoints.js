@@ -8,6 +8,8 @@ export const endpoints = {
     create: "/api/auth/create/",
     login: "/api/auth/login/",
     refresh: "/api/auth/refresh-token/",
+    logout: "/api/auth/logout/",
+    delete_account: "/api/auth/delete-account/",
 
     // banners
     banners: "/api/banner/get-banners/",

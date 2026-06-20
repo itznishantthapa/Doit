@@ -79,3 +79,13 @@ export const apiGetUserData = async () => {
   await AsyncStorage.setItem('@user', JSON.stringify(user));
   return user;
 };
+
+export const apiLogout = async () => {
+  const response = await API_CLIENT.post(endpoints.logout);
+  return response.data;
+};
+
+export const apiDeleteAccount = async () => {
+  const response = await API_CLIENT.post(endpoints.delete_account);
+  return response.data;
+};

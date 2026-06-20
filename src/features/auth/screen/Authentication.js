@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import {
   Image,
@@ -34,12 +34,14 @@ const PEEK_GRADIENT = [
 
 const EMOJI_REGEX = /\p{Extended_Pictographic}/u;
 
-//username can containe numbers
 const usernameSchema = yup
   .string()
   .trim()
   .required('Username is required')
-  .matches(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers and underscores');
+  .matches(/^[a-z0-9_]+$/, {
+    message: 'Username can only contain letters, numbers and underscores',
+    excludeEmptyString: true,
+  });
 
 const passwordSchema = yup
   .string()
@@ -114,8 +116,10 @@ const Authentication = () => {
   };
 
   const updateForm = (field) => (value) => {
+    const nextValue = field === 'username' ? value.toLowerCase() : value;
+
     setForm((prev) => {
-      const next = { ...prev, [field]: value };
+      const next = { ...prev, [field]: nextValue };
       validateField(field, next);
       if (field === 'password' && isSignUp && next.confirmPassword) {
         validateField('confirmPassword', next);
@@ -153,7 +157,6 @@ const Authentication = () => {
     };
 
     try {
-      setErrors({});
       await loginSchema.validate(payload, { abortEarly: false });
       setIsSubmitting(true);
       await login(payload);
@@ -185,7 +188,6 @@ const Authentication = () => {
     };
 
     try {
-      setErrors({});
       await signUpSchema.validate(payload, { abortEarly: false });
       setIsSubmitting(true);
       await create(payload);
@@ -206,32 +208,6 @@ const Authentication = () => {
   };
 
   const handleSubmit = isSignUp ? handleCreate : handleLogin;
-
-  const canSubmit = useMemo(() => {
-    try {
-      if (isSignUp) {
-        signUpSchema.validateSync(
-          {
-            username: form.username.trim(),
-            password: form.password,
-            confirmPassword: form.confirmPassword,
-          },
-          { abortEarly: true },
-        );
-      } else {
-        loginSchema.validateSync(
-          {
-            username: form.username.trim(),
-            password: form.password,
-          },
-          { abortEarly: true },
-        );
-      }
-      return true;
-    } catch {
-      return false;
-    }
-  }, [form, isSignUp]);
 
   return (
     <MyWrapper
@@ -389,7 +365,7 @@ const Authentication = () => {
 
             <CoolButton
               onPress={handleSubmit}
-              disabled={!canSubmit || isSubmitting}
+              disabled={isSubmitting}
               buttonTitle={isSignUp ? 'Sign Up' : 'Log In'}
               loader={isSubmitting}
             />

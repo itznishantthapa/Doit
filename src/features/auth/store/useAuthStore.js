@@ -7,10 +7,35 @@ import {
   getStoredAuthData,
   apiSyncPushToken,
   apiGetUserData,
+  apiLogout,
+  apiDeleteAccount,
 } from '../api/api';
 import { Keyboard } from 'react-native';
 import { registerAuthHandlers } from '../../../services/authBridge';
 import { unsubscribeFromBroadcastTopic } from '../../../services/notificationService';
+import { queryClient } from '../../../services/queryClient';
+
+const clearSessionLocally = async (set) => {
+  try {
+    await unsubscribeFromBroadcastTopic();
+  } catch (error) {
+    if (__DEV__) console.error('Topic unsubscription failed during session clear:', error);
+  }
+
+  try {
+    await clearStoredAuthData();
+  } catch (error) {
+    if (__DEV__) console.error('Stored auth clear failed during session clear:', error);
+  }
+
+  queryClient.clear();
+
+  set({
+    user: null,
+    accessToken: null,
+    refreshToken: null,
+  });
+};
 
 export const useAuthStore = create((set, get) => ({
   user: undefined, // undefined = loading, null = logged out, object = logged in
@@ -65,7 +90,6 @@ export const useAuthStore = create((set, get) => ({
     return auth.user;
   },
 
-
   apiRefreshToken: async () => {
     const refreshToken = get().refreshToken;
 
@@ -82,16 +106,24 @@ export const useAuthStore = create((set, get) => ({
   },
 
   logout: async () => {
-    await unsubscribeFromBroadcastTopic();
-    await clearStoredAuthData();
-    set({
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-    });
+    try {
+      await apiLogout();
+    } catch (error) {
+      if (__DEV__) console.error('Logout API failed:', error);
+    } finally {
+      await clearSessionLocally(set);
+    }
   },
 
-
+  deleteAccount: async () => {
+    try {
+      await apiDeleteAccount();
+    } catch (error) {
+      if (__DEV__) console.error('Delete account API failed:', error);
+    } finally {
+      await clearSessionLocally(set);
+    }
+  },
 
   syncPushToken: async (fcmToken) => {
     if (!fcmToken) return;
@@ -105,9 +137,6 @@ export const useAuthStore = create((set, get) => ({
     set({ user });
     return user;
   },
-
-
-
 }));
 
 registerAuthHandlers({

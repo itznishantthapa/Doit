@@ -87,12 +87,10 @@ const Setting = () => {
         {
           text: 'Cancel',
           style: 'cancel',
-          onPress: () => console.log('Sign out cancelled'),
         },
         {
           text: 'Sign Out',
           onPress: async () => {
-            console.log('Sign out confirmed');
             setIsSigningOut(true);
 
             try {
