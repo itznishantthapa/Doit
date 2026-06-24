@@ -4,6 +4,8 @@ import { endpoints } from './endpoints';
 
 let refreshPromise = null;
 
+// These APIs do not need to attach token.
+// These are public APIs.
 const isPublicAuthRequest = (url) =>
   url?.includes(endpoints.login) ||
   url?.includes(endpoints.create) ||

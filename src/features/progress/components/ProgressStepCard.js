@@ -177,7 +177,6 @@ const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
   const showChangesRequestButton = isCompletedActive && remainingChangesRequests > 0;
   const showChangesRequestLimit =
     isCompletedActive && changesRequestCount >= MAX_CHANGES_REQUESTS;
-  const showChangesRequestAction = showChangesRequestButton || showChangesRequestLimit;
 
   const openChangesRequest = useCallback(() => {
     navigation.navigate('ChangesRequest', { assignmentId, remainingChangesRequests });
@@ -260,24 +259,7 @@ const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
 
   const content = (
     <>
-      {showChangesRequestButton ? (
-        <Pressable
-          onPress={openChangesRequest}
-          hitSlop={8}
-          style={({ pressed }) => [
-            styles.changesRequestIconButton,
-            pressed && styles.pressed,
-          ]}
-        >
-          <HugeiconsIcon icon={CardExchange01Icon} size={18} color={WHITE} strokeWidth={1.5} />
-        </Pressable>
-      ) : showChangesRequestLimit ? (
-        <Text style={styles.changesRequestLimitText}>
-          {MAX_CHANGES_REQUESTS}/{MAX_CHANGES_REQUESTS}
-        </Text>
-      ) : null}
-
-      <View style={[styles.topRow, showChangesRequestAction && styles.topRowWithAction]}>
+      <View style={styles.topRow}>
         <View style={[styles.iconBox, { backgroundColor: step.is_active ? `${accent}22` : BORDER }]}>
           {showDoingStepLoader ? (
             <LoaderKitView
@@ -634,34 +616,56 @@ const ProgressStepCard = ({ step, assignmentId, assignmentTitle }) => {
       ) : null}
 
       {isCompleted ? (
-        <Pressable
-          disabled={!isDownloadEnabled || isDownloading || isDownloaded}
-          onPress={downloadAssignment}
-          style={({ pressed }) => [
-            styles.downloadButton,
-            !isDownloadEnabled && styles.downloadButtonDisabled,
-            isDownloaded && styles.downloadButtonDone,
-            isDownloadEnabled && !isDownloading && !isDownloaded && pressed && styles.pressed,
-          ]}
-        >
-          {isDownloading ? (
-            <LoaderKitView
-              style={styles.downloadLoader}
-              name="BallBeat"
-              animationSpeedMultiplier={1.0}
-              color={WHITE}
-            />
-          ) : (
-            <Text
-              style={[
-                styles.downloadButtonText,
-                !isDownloadEnabled && styles.downloadButtonTextDisabled,
+        <View style={styles.completedActionsRow}>
+          <Pressable
+            disabled={!isDownloadEnabled || isDownloading || isDownloaded}
+            onPress={downloadAssignment}
+            style={({ pressed }) => [
+              styles.downloadButton,
+              styles.downloadButtonFlex,
+              !isDownloadEnabled && styles.downloadButtonDisabled,
+              isDownloaded && styles.downloadButtonDone,
+              isDownloadEnabled && !isDownloading && !isDownloaded && pressed && styles.pressed,
+            ]}
+          >
+            {isDownloading ? (
+              <LoaderKitView
+                style={styles.downloadLoader}
+                name="BallBeat"
+                animationSpeedMultiplier={1.0}
+                color={WHITE}
+              />
+            ) : (
+              <Text
+                style={[
+                  styles.downloadButtonText,
+                  !isDownloadEnabled && styles.downloadButtonTextDisabled,
+                ]}
+              >
+                {isDownloaded ? 'Downloaded' : 'Download Assignment'}
+              </Text>
+            )}
+          </Pressable>
+
+          {showChangesRequestButton ? (
+            <Pressable
+              onPress={openChangesRequest}
+              hitSlop={8}
+              style={({ pressed }) => [
+                styles.changesRequestButton,
+                pressed && styles.pressed,
               ]}
             >
-              {isDownloaded ? 'Downloaded' : 'Download Assignment'}
-            </Text>
-          )}
-        </Pressable>
+              <HugeiconsIcon icon={CardExchange01Icon} size={18} color={WHITE} strokeWidth={1.5} />
+            </Pressable>
+          ) : showChangesRequestLimit ? (
+            <View style={styles.changesRequestLimitBadge}>
+              <Text style={styles.changesRequestLimitBadgeText}>
+                {MAX_CHANGES_REQUESTS}/{MAX_CHANGES_REQUESTS}
+              </Text>
+            </View>
+          ) : null}
+        </View>
       ) : null}
     </>
   );
@@ -702,9 +706,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 8,
-  },
-  topRowWithAction: {
-    paddingRight: 36,
   },
   iconBox: {
     width: 30,
@@ -793,35 +794,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  changesRequestIconButton: {
-    position: 'absolute',
-    top: 14,
-    right: 14,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  completedActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 14,
+  },
+  changesRequestButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: TEXT_DARK,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1,
   },
-  changesRequestLimitText: {
-    position: 'absolute',
-    top: 20,
-    right: 14,
-    fontFamily: 'Jakarta-Regular',
+  changesRequestLimitBadge: {
+    minWidth: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: GHOSTWHITE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  changesRequestLimitBadgeText: {
+    fontFamily: 'Jakarta-SemiBold',
     fontSize: 12,
     color: TEXT_MUTED,
-    zIndex: 1,
   },
   downloadButton: {
-    marginTop: 14,
     backgroundColor: TEXT_DARK,
     borderRadius: 25,
     paddingVertical: 12,
+    paddingHorizontal: 16,
     alignItems: 'center',
     minHeight: 44,
     justifyContent: 'center',
+  },
+  downloadButtonFlex: {
+    flex: 1,
   },
   downloadButtonDone: {
     backgroundColor: '#2F6B52',

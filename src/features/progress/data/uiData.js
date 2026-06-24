@@ -53,12 +53,12 @@ export const PROGRESS_STEPS = [
 
 export const STEP_STATUS_COPY = {
   [PROGRESS_STEP_IDS.PROVIDED]: {
-    pending: 'A helper is reviewing your assignment and will share the payment details for this assignment. \n(Usually takes 10-30 minutes)',
-    completed: 'A helper has successfully reviewed you assignment.',
+    pending: 'Helper is reviewing your assignment and will share the payment details for this assignment. \n(Usually takes 10-30 minutes)',
+    completed: 'Helper has successfully reviewed you assignment.',
     rejected: "We're unable to assit you with this assignment.",
   },
   [PROGRESS_STEP_IDS.PAYMENT]: {
-    pending: 'Helper will send you payment details shortly. Tap the info button to learn about ce ranges.',
+    pending: 'Cost & Payment details. \nTap the info button to see pricing ranges.',
     doing: 'You have submitted payment for this assignment, please wait sometime helper will verify your payment.',
     rejected: 'Helper could not validate your payment. Please contact the helper.',
     completed: 'You have successfully paid for this assignment.',
