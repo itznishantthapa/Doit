@@ -21,7 +21,7 @@ class AssignmentProgress(models.Model):
     # -------------------------------------------------------------------------
     provided_date = models.DateTimeField(auto_now_add=True)
     provided_is_active = models.BooleanField(default=True)
-    provided_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed')
+    provided_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     # -------------------------------------------------------------------------
     # STEP 2: PAYMENT FIELDS

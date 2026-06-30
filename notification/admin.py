@@ -1,12 +1,10 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
-from unfold.contrib.filters.admin import ChoicesDropdownFilter, RangeDateFilter
 
 from .models import UserNotification
 
 
 @admin.register(UserNotification)
-class UserNotificationAdmin(ModelAdmin):
+class UserNotificationAdmin(admin.ModelAdmin):
     list_display = (
         "title",
         "user",
@@ -16,11 +14,10 @@ class UserNotificationAdmin(ModelAdmin):
     )
     list_display_links = ("title",)
     list_filter = (
-        ("is_read", ChoicesDropdownFilter),
-        ("screen_name", ChoicesDropdownFilter),
-        ("created_at", RangeDateFilter),
+        "is_read",
+        "screen_name",
+        ("created_at", admin.DateFieldListFilter),
     )
-    list_filter_submit = True
     search_fields = ("title", "description", "user__username")
     raw_id_fields = ("user",)
     readonly_fields = ("created_at",)

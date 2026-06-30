@@ -1,19 +1,13 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
-from unfold.contrib.filters.admin import ChoicesDropdownFilter, RangeDateFilter
 
 from .models import BusyDate
 
 
 @admin.register(BusyDate)
-class BusyDateAdmin(ModelAdmin):
+class BusyDateAdmin(admin.ModelAdmin):
     list_display = ("date", "reason", "created_at")
     list_display_links = ("date",)
-    list_filter = (
-        ("reason", ChoicesDropdownFilter),
-        ("date", RangeDateFilter),
-    )
-    list_filter_submit = True
+    list_filter = ("reason", ("date", admin.DateFieldListFilter))
     search_fields = ("reason",)
     readonly_fields = ("created_at",)
     fieldsets = (

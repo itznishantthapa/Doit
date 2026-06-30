@@ -1,12 +1,10 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
-from unfold.contrib.filters.admin import ChoicesDropdownFilter, RangeDateFilter
 
 from .models import User
 
 
 @admin.register(User)
-class UserAdmin(ModelAdmin):
+class UserAdmin(admin.ModelAdmin):
     list_display = (
         "username",
         "role",
@@ -16,12 +14,7 @@ class UserAdmin(ModelAdmin):
         "created_at",
     )
     list_display_links = ("username",)
-    list_filter = (
-        ("role", ChoicesDropdownFilter),
-        ("is_active", ChoicesDropdownFilter),
-        ("is_suspended", ChoicesDropdownFilter),
-    )
-    list_filter_submit = True
+    list_filter = ("role", "is_active", "is_suspended")
     search_fields = ("username", "device_id", "country", "program")
     readonly_fields = ("created_at", "updated_at", "last_login")
     fieldsets = (

@@ -1,12 +1,10 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
-from unfold.contrib.filters.admin import ChoicesDropdownFilter
 
 from .models import AssignmentProgress
 
 
 @admin.register(AssignmentProgress)
-class AssignmentProgressAdmin(ModelAdmin):
+class AssignmentProgressAdmin(admin.ModelAdmin):
     list_display = (
         "assignment",
         "provided_status",
@@ -17,12 +15,11 @@ class AssignmentProgressAdmin(ModelAdmin):
     )
     list_display_links = ("assignment",)
     list_filter = (
-        ("provided_status", ChoicesDropdownFilter),
-        ("payment_status", ChoicesDropdownFilter),
-        ("doing_status", ChoicesDropdownFilter),
-        ("completed_status", ChoicesDropdownFilter),
+        "provided_status",
+        "payment_status",
+        "doing_status",
+        "completed_status",
     )
-    list_filter_submit = True
     search_fields = ("assignment__name", "assignment__user__username")
     raw_id_fields = ("assignment",)
     readonly_fields = ("provided_date",)

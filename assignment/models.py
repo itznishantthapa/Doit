@@ -45,6 +45,15 @@ class Assignment(models.Model):
     # Financial & State tracking metrics
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='in_review')
     is_paid = models.BooleanField(default=False)
+    is_working = models.BooleanField(default=False)
+    added_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='added_assignments',
+        limit_choices_to={'role': 'admin'},
+    )
 
     # changes request
     changes_request_description = models.TextField(blank=True, null=True)

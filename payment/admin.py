@@ -1,12 +1,10 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
-from unfold.contrib.filters.admin import RangeDateFilter
 
 from .models import AssignmentPayment, PaymentDetails
 
 
 @admin.register(PaymentDetails)
-class PaymentDetailsAdmin(ModelAdmin):
+class PaymentDetailsAdmin(admin.ModelAdmin):
     list_display = ("pay_name", "pay_id", "updated_at")
     list_display_links = ("pay_name", "pay_id")
     search_fields = ("pay_name", "pay_id")
@@ -19,7 +17,7 @@ class PaymentDetailsAdmin(ModelAdmin):
 
 
 @admin.register(AssignmentPayment)
-class AssignmentPaymentAdmin(ModelAdmin):
+class AssignmentPaymentAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "assignment",
@@ -28,8 +26,7 @@ class AssignmentPaymentAdmin(ModelAdmin):
         "pay_at",
     )
     list_display_links = ("id", "assignment")
-    list_filter = (("pay_at", RangeDateFilter),)
-    list_filter_submit = True
+    list_filter = (("pay_at", admin.DateFieldListFilter),)
     search_fields = ("user__username", "assignment__name", "id")
     raw_id_fields = ("assignment", "user")
     readonly_fields = ("pay_at",)
