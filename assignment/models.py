@@ -14,7 +14,7 @@ class Assignment(models.Model):
     )
 
     STATUS_CHOICES = (
-        ('in_review', 'In Review'),
+        ('pending', 'Pending'),
         ('rejected', 'Rejected'),
         ('payment_pending', 'Payment Pending'),
         ('payment_rejected', 'Payment Rejected'),
@@ -23,7 +23,7 @@ class Assignment(models.Model):
         ('unsubmitted', 'Unsubmitted'),
     )
 
-    PENDING_STATUSES = ('in_review', 'payment_pending', 'doing','unsubmitted')
+    PENDING_STATUSES = ('pending', 'payment_pending', 'doing','unsubmitted')
     COMPLETED_STATUS = 'completed'
 
     # Core relationship (Links assignment to the user who uploaded it)
@@ -41,9 +41,10 @@ class Assignment(models.Model):
     
     # Scheduling dates
     delivery_date = models.DateField()  # Maps directly to "2026-06-14"
+    delivered_date = models.DateField(blank=True, null=True)
     
     # Financial & State tracking metrics
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='in_review')
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='pending')
     is_paid = models.BooleanField(default=False)
     is_working = models.BooleanField(default=False)
     added_by = models.ForeignKey(

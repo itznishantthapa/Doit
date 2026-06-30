@@ -1,0 +1,146 @@
+from django.urls import path
+
+from admin import (
+    adminassignmentviews,
+    adminauthview,
+    adminbadgeviews,
+    admincalendarviews,
+    admindashboardviews,
+    adminnotification,
+    adminuserview,
+    adminworkingviews,
+)
+from admin import assignmentprogress as adminassignmentprogress
+
+urlpatterns = [
+    path('auth/login/', adminauthview.admin_login, name='admin_login'),
+    path('auth/totp/setup/', adminauthview.admin_totp_setup, name='admin_totp_setup'),
+    path('auth/totp/verify/', adminauthview.admin_totp_verify, name='admin_totp_verify'),
+    path('auth/me/', adminauthview.get_admin_user, name='get_admin_user'),
+    path(
+        'auth/refresh-token/',
+        adminauthview.admin_refresh_token,
+        name='admin_refresh_token',
+    ),
+    path('auth/logout/', adminauthview.admin_logout, name='admin_logout'),
+    path(
+        'dashboard/',
+        admindashboardviews.get_dashboard_data,
+        name='admin_dashboard',
+    ),
+    path(
+        'badges/',
+        adminbadgeviews.get_badge_number,
+        name='admin_badges',
+    ),
+    path(
+        'calendar/',
+        admincalendarviews.get_calendar_data,
+        name='admin_calendar',
+    ),
+    path(
+        'calendar/mark-busy/',
+        admincalendarviews.mark_busy_dates,
+        name='admin_mark_busy_dates',
+    ),
+    path(
+        'calendar/mark-available/',
+        admincalendarviews.mark_available_dates,
+        name='admin_mark_available_dates',
+    ),
+    path(
+        'users/',
+        adminuserview.get_users_data,
+        name='admin_users',
+    ),
+    path(
+        'users/search/',
+        adminuserview.search_users,
+        name='admin_search_users',
+    ),
+    path(
+        'users/delete/',
+        adminuserview.delete_user,
+        name='admin_delete_user',
+    ),
+    path(
+        'users/update-password/',
+        adminuserview.update_user_password,
+        name='admin_update_user_password',
+    ),
+    path(
+        'users/<user_id>/assignments/',
+        adminuserview.get_user_assignments_data,
+        name='admin_user_assignments',
+    ),
+    path(
+        'users/<user_id>/',
+        adminuserview.get_user_details,
+        name='admin_user_details',
+    ),
+    path(
+        'assignments/',
+        adminassignmentviews.get_assignments_data,
+        name='admin_assignments',
+    ),
+    path(
+        'assignments/delete/',
+        adminassignmentviews.delete_assignment,
+        name='admin_delete_assignment',
+    ),
+    path(
+        'assignments/add-on-working/',
+        adminassignmentviews.add_assignment_on_working,
+        name='admin_add_assignment_on_working',
+    ),
+    path(
+        'assignments/<assignment_id>/progress/',
+        adminassignmentprogress.get_assignment_progress_data,
+        name='admin_assignment_progress',
+    ),
+    path(
+        'assignments/progress/received/',
+        adminassignmentprogress.assignment_received_action,
+        name='admin_assignment_received_action',
+    ),
+    path(
+        'assignments/progress/payment/',
+        adminassignmentprogress.payment_actions,
+        name='admin_assignment_payment_action',
+    ),
+    path(
+        'assignments/progress/doing/',
+        adminassignmentprogress.doing_action,
+        name='admin_assignment_doing_action',
+    ),
+    path(
+        'assignments/progress/completed/',
+        adminassignmentprogress.completed_action,
+        name='admin_assignment_completed_action',
+    ),
+    path(
+        'working/',
+        adminworkingviews.get_working_assignments_data,
+        name='admin_working',
+    ),
+    path(
+        'working/remove/',
+        adminworkingviews.remove_from_working,
+        name='admin_remove_from_working',
+    ),
+    path(
+        'notifications/',
+        adminnotification.get_system_notifications,
+        name='admin_system_notifications',
+    ),
+    path(
+        'notifications/create/',
+        adminnotification.create_system_notification,
+        name='admin_create_system_notification',
+    ),
+    path(
+        'notifications/resend/',
+        adminnotification.resend_system_notification,
+        name='admin_resend_system_notification',
+    ),
+]

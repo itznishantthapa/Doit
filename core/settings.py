@@ -35,14 +35,18 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS')
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS')
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Application definition
 
 INSTALLED_APPS = [
     'user',
-    'django.contrib.admin',
+    'corsheaders',
+    # 'django.contrib.admin', # No need for default admin panel
     'django.contrib.auth',
+    'axes',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -57,18 +61,32 @@ INSTALLED_APPS = [
     'assignmentprogress',
     'notification',
     'payment',
+    'admin.apps.AdminConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'axes.middleware.AxesMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = 0.5
+AXES_LOCKOUT_PARAMETERS = [['username', 'ip_address']]
+AXES_RESET_ON_SUCCESS = True
+AXES_ENABLE_ACCESS_FAILURE_LOG = True
 
 ROOT_URLCONF = 'core.urls'
 
@@ -108,16 +126,10 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'OPTIONS': {
+            'min_length': 6,
+        },
     },
 ]
 
@@ -143,6 +155,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_THROTTLE_RATES': {
+        'auth': '20/minute',
+    },
 }
 
 SIMPLE_JWT = {
@@ -212,8 +227,5 @@ FIREBASE_CLIENT_EMAIL = env('FIREBASE_CLIENT_EMAIL')
 FIREBASE_PRIVATE_KEY_ID = env('FIREBASE_PRIVATE_KEY_ID')
 FIREBASE_PRIVATE_KEY = env('FIREBASE_PRIVATE_KEY')
 FIREBASE_CLIENT_ID = env('FIREBASE_CLIENT_ID')
-FIREBASE_CLIENT_X509_CERT_URL = env('FIREBASE_CLIENT_X509_CERT_URL')
-FIREBASE_ENABLE_TEST_BROADCAST = env.bool('FIREBASE_ENABLE_TEST_BROADCAST')
-FIREBASE_TEST_TOPIC = env('FIREBASE_TEST_TOPIC')
-FIREBASE_TEST_BANNER_URL = env('FIREBASE_TEST_BANNER_URL')
+FIREBASE_CLIENT_X509_CERT_URL = env('FIREBASE_CLIENT_X509_CERT_URL', default='')
 

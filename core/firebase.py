@@ -2,9 +2,11 @@ import logging
 
 import firebase_admin
 from django.conf import settings
-from firebase_admin import credentials
+from firebase_admin import credentials, messaging
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_FCM_TOPIC = 'all_users'
 
 
 def is_firebase_configured() -> bool:
@@ -47,3 +49,18 @@ def initialize_firebase() -> None:
     cred = credentials.Certificate(build_firebase_credentials_dict())
     firebase_admin.initialize_app(cred)
     logger.info("Firebase Admin SDK initialized for project %s.", settings.FIREBASE_PROJECT_ID)
+
+
+def send_topic_notification(title: str, body: str, topic: str = DEFAULT_FCM_TOPIC) -> str:
+    if not is_firebase_configured():
+        raise RuntimeError('Firebase is not configured.')
+
+    message = messaging.Message(
+        notification=messaging.Notification(title=title, body=body),
+        topic=topic,
+        data={
+            'title': title,
+            'body': body,
+        },
+    )
+    return messaging.send(message)

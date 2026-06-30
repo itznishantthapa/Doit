@@ -44,18 +44,6 @@ class Command(BaseCommand):
         if data.get("client_x509_cert_url"):
             lines.append(f"FIREBASE_CLIENT_X509_CERT_URL={data['client_x509_cert_url']}")
 
-        lines.extend(
-            [
-                "FIREBASE_ENABLE_TEST_BROADCAST=True",
-                "FIREBASE_TEST_TOPIC=all_users",
-                (
-                    "FIREBASE_TEST_BANNER_URL="
-                    "https://images.unsplash.com/photo-1542751371-adc38448a05e"
-                    "?q=80&w=600&auto=format&fit=crop"
-                ),
-            ]
-        )
-
         self.stdout.write("\n".join(lines))
         self.stdout.write(
             "\n\nCopy the lines above into your .env file, then delete the JSON file from the repo."

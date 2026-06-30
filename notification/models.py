@@ -31,3 +31,17 @@ class UserNotification(models.Model):
 
     def __str__(self):
         return f"Notification for User ID {self.user_id}: {self.title}"
+
+
+class SystemNotification(models.Model):
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    topic = models.CharField(max_length=100, default='all_users')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'system_notifications'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"System notification: {self.title}"

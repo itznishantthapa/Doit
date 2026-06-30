@@ -59,6 +59,12 @@ class User(AbstractBaseUser):
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     is_suspended = models.BooleanField(default=False)
     
+    # Two-factor authentication (admin TOTP)
+    totp_secret = models.CharField(max_length=64, blank=True, null=True)
+    totp_enabled = models.BooleanField(default=False)
+    failed_totp_attempts = models.PositiveSmallIntegerField(default=0)
+    totp_frozen_until = models.DateTimeField(blank=True, null=True)
+
     # System timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

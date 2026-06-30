@@ -19,10 +19,11 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from core.views import privacy, support, terms, test_topic_broadcast
+from core.views import privacy, support, terms
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # Users
+    # path('admin/', admin.site.urls), # No need for default admin panel
     path('privacy/', privacy, name='privacy'),
     path('terms/', terms, name='terms'),
     path('support/', support, name='support'),
@@ -34,7 +35,9 @@ urlpatterns = [
     path('api/assignmentprogress/', include('assignmentprogress.urls')),
     path('api/notification/', include('notification.urls')),
     path('api/payment/', include('payment.urls')),
-    path('api/test-broadcast/', test_topic_broadcast, name='test_broadcast'),
+
+    # Admin API (Next.js admin panel)
+    path('api/admin/', include('admin.urls')),
 ]
 
 
