@@ -47,7 +47,10 @@ def get_assignments_data(request):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        status_filter = request.GET.get('status', 'pending')
+        status_filter = request.GET.get('status', 'in_review')
+        if status_filter == 'pending':
+            status_filter = 'in_review'
+
         if status_filter not in VALID_TAB_STATUSES:
             return Response(
                 {'message': 'Invalid status value provided.'},

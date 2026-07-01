@@ -11,7 +11,7 @@ from user.models import User
 
 logger = logging.getLogger(__name__)
 
-IN_REVIEW_STATUSES = ('pending', 'payment_pending', 'unsubmitted')
+IN_REVIEW_STATUSES = ('in_review', 'payment_pending', 'unsubmitted')
 NON_ADMIN_ROLE = 'user'
 
 

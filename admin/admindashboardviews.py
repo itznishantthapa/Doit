@@ -18,11 +18,11 @@ from user.models import User
 logger = logging.getLogger(__name__)
 
 PIE_STATUS_GROUPS = (
-    ('Pending', ('payment_pending', 'payment_rejected', 'unsubmitted')),
     ('Review', ('in_review',)),
     ('Completed', ('completed',)),
     ('Doing', ('doing',)),
     ('Rejected', ('rejected',)),
+    ('Payment Pending', ('payment_pending', 'payment_rejected', 'unsubmitted')),
 )
 
 

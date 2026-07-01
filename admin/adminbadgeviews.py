@@ -21,15 +21,15 @@ def get_badge_number(request):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        pending_assignments = Assignment.objects.filter(
-            status='pending',
+        in_review_assignments = Assignment.objects.filter(
+            status='in_review',
             is_working=False,
         ).count()
         working_assignments = Assignment.objects.filter(is_working=True).count()
 
         return Response({
             'message': 'Badge numbers retrieved successfully.',
-            'pendingAssignments': pending_assignments,
+            'inReviewAssignments': in_review_assignments,
             'workingAssignments': working_assignments,
         }, status=status.HTTP_200_OK)
     except Exception:
