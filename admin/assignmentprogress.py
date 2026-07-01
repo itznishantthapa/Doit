@@ -12,6 +12,15 @@ from rest_framework.response import Response
 from admin.utils import is_admin
 from assignment.models import Assignment
 from assignmentprogress.models import AssignmentProgress
+from notification.notifyuser import (
+    notify_assignment_completed,
+    notify_assignment_provided_rejected,
+    notify_assignment_updated,
+    notify_payment_approved,
+    notify_payment_details_sent,
+    notify_payment_rejected,
+    schedule_assignment_notification,
+)
 from payment.models import PaymentDetails
 
 logger = logging.getLogger(__name__)
@@ -202,6 +211,10 @@ def assignment_received_action(request):
                 assignment.status = 'rejected'
                 assignment.save(update_fields=['status', 'updated_at'])
                 progress.save(update_fields=['provided_status', 'payment_is_active'])
+                schedule_assignment_notification(
+                    notify_assignment_provided_rejected,
+                    assignment,
+                )
                 message = 'Assignment received rejected successfully.'
 
         return Response({'message': message}, status=status.HTTP_200_OK)
@@ -298,6 +311,10 @@ def payment_actions(request):
                 progress.save()
                 assignment.status = 'payment_pending'
                 assignment.save(update_fields=['status', 'updated_at'])
+                schedule_assignment_notification(
+                    notify_payment_details_sent,
+                    assignment,
+                )
 
                 return Response(
                     {'message': 'Payment details sent successfully.'},
@@ -315,18 +332,20 @@ def payment_actions(request):
                 progress.payment_status = 'completed'
                 progress.payment_done_date = now
                 progress.doing_is_active = True
-                progress.doing_status = 'doing'
+                progress.doing_status = 'pending'
                 progress.doing_date = now
                 progress.save()
                 assignment.is_paid = True
                 assignment.status = 'doing'
                 assignment.save(update_fields=['is_paid', 'status', 'updated_at'])
+                schedule_assignment_notification(notify_payment_approved, assignment)
                 message = 'Payment approved successfully.'
             else:
                 progress.payment_status = 'rejected'
                 progress.save(update_fields=['payment_status'])
                 assignment.status = 'rejected'
                 assignment.save(update_fields=['status', 'updated_at'])
+                schedule_assignment_notification(notify_payment_rejected, assignment)
                 message = 'Payment rejected successfully.'
 
         return Response({'message': message}, status=status.HTTP_200_OK)
@@ -365,7 +384,10 @@ def doing_action(request):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if not progress.doing_is_active or progress.doing_status != 'doing':
+        if not progress.doing_is_active or progress.doing_status not in (
+            'pending',
+            'doing',
+        ):
             return Response(
                 {'message': 'Doing step is not ready for review.'},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -433,20 +455,26 @@ def completed_action(request):
             )
 
         with transaction.atomic():
+            is_change_request_update = (
+                assignment.changes_request_count
+                > assignment.changes_request_resolved_count
+            )
             now = timezone.now()
             assignment.completed_file = completed_file
             assignment.status = 'completed'
             assignment_update_fields = ['completed_file', 'status', 'updated_at']
-            if (
-                assignment.changes_request_count
-                > assignment.changes_request_resolved_count
-            ):
+            if is_change_request_update:
                 assignment.changes_request_resolved_count += 1
                 assignment_update_fields.append('changes_request_resolved_count')
             assignment.save(update_fields=assignment_update_fields)
             progress.completed_status = 'completed'
             progress.completed_date = now
             progress.save(update_fields=['completed_status', 'completed_date'])
+
+            if is_change_request_update:
+                schedule_assignment_notification(notify_assignment_updated, assignment)
+            else:
+                schedule_assignment_notification(notify_assignment_completed, assignment)
 
         return Response(
             {'message': 'Completed assignment saved successfully.'},

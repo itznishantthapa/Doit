@@ -51,6 +51,30 @@ def initialize_firebase() -> None:
     logger.info("Firebase Admin SDK initialized for project %s.", settings.FIREBASE_PROJECT_ID)
 
 
+def send_device_notification(
+    token: str,
+    title: str,
+    body: str,
+    data: dict | None = None,
+) -> str:
+    if not is_firebase_configured():
+        raise RuntimeError('Firebase is not configured.')
+
+    payload = {
+        'title': title,
+        'body': body,
+    }
+    if data:
+        payload.update({key: str(value) for key, value in data.items()})
+
+    message = messaging.Message(
+        notification=messaging.Notification(title=title, body=body),
+        token=token,
+        data=payload,
+    )
+    return messaging.send(message)
+
+
 def send_topic_notification(title: str, body: str, topic: str = DEFAULT_FCM_TOPIC) -> str:
     if not is_firebase_configured():
         raise RuntimeError('Firebase is not configured.')
