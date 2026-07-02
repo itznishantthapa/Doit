@@ -11,7 +11,7 @@ import {
   unsubscribeFromTopic,
 } from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance, AndroidStyle } from '@notifee/react-native';
-import { FCM_BROADCAST_TOPIC } from '../constants/notifications';
+import { FCM_USER_TOPIC } from '../constants/notifications';
 
 export const requestNotificationPermission = async () => {
   try {
@@ -64,7 +64,7 @@ export const setupNotificationChannel = async () => {
   });
 };
 
-export const subscribeToBroadcastTopic = async (topic = FCM_BROADCAST_TOPIC) => {
+export const subscribeToBroadcastTopic = async (topic = FCM_USER_TOPIC) => {
   try {
     await subscribeToTopic(getMessaging(getApp()), topic);
     return true;
@@ -74,7 +74,7 @@ export const subscribeToBroadcastTopic = async (topic = FCM_BROADCAST_TOPIC) => 
   }
 };
 
-export const unsubscribeFromBroadcastTopic = async (topic = FCM_BROADCAST_TOPIC) => {
+export const unsubscribeFromBroadcastTopic = async (topic = FCM_USER_TOPIC) => {
   try {
     await unsubscribeFromTopic(getMessaging(getApp()), topic);
     return true;

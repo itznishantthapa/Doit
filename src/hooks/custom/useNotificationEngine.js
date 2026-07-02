@@ -6,6 +6,7 @@ import notifee, { EventType } from '@notifee/react-native';
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
 import { queryClient } from '../../services/queryClient';
 import { USER_NOTIFICATIONS_QUERY_KEY } from '../query/query/useUserNotification';
+import { getFcmBroadcastTopicForRole } from '../../constants/notifications';
 import {
   requestNotificationPermission,
   getFCMToken,
@@ -35,8 +36,10 @@ export function useNotificationEngine() {
         await useAuthStore.getState().syncPushToken(token);
       }
 
-      await subscribeToBroadcastTopic();
-      console.log("subscribed to broadcast topic");
+      const userRole = useAuthStore.getState().user?.role;
+      const broadcastTopic = getFcmBroadcastTopicForRole(userRole);
+      await subscribeToBroadcastTopic(broadcastTopic);
+      console.log("broadcastTopic -> ", broadcastTopic);
 
       // 1. Foreground FCM Listener
       activeUnsubscribers.push(

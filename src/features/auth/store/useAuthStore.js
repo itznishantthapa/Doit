@@ -12,12 +12,14 @@ import {
 } from '../api/api';
 import { Keyboard } from 'react-native';
 import { registerAuthHandlers } from '../../../services/authBridge';
+import { getFcmBroadcastTopicForRole } from '../../../constants/notifications';
 import { unsubscribeFromBroadcastTopic } from '../../../services/notificationService';
 import { queryClient } from '../../../services/queryClient';
 
-const clearSessionLocally = async (set) => {
+const clearSessionLocally = async (set, get) => {
   try {
-    await unsubscribeFromBroadcastTopic();
+    const broadcastTopic = getFcmBroadcastTopicForRole(get().user?.role);
+    await unsubscribeFromBroadcastTopic(broadcastTopic);
   } catch (error) {
     if (__DEV__) console.error('Topic unsubscription failed during session clear:', error);
   }
@@ -111,7 +113,7 @@ export const useAuthStore = create((set, get) => ({
     } catch (error) {
       if (__DEV__) console.error('Logout API failed:', error);
     } finally {
-      await clearSessionLocally(set);
+      await clearSessionLocally(set, get);
     }
   },
 
@@ -121,7 +123,7 @@ export const useAuthStore = create((set, get) => ({
     } catch (error) {
       if (__DEV__) console.error('Delete account API failed:', error);
     } finally {
-      await clearSessionLocally(set);
+      await clearSessionLocally(set, get);
     }
   },
 
